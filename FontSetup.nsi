@@ -158,11 +158,15 @@ Function .onInit
 		!insertmacro MUI_LANGDLL_DISPLAY
 	${EndIf}
 
-	ReadRegStr $0 HKLM "Software\CTeX" "Install"
-	${If} $0 == ""
-		StrCpy $0 "C:\CTEX"
+	${If} $CTEXSETUP != ""
+		StrCpy $INSTDIR $CTEXSETUP
+	${Else}
+		ReadRegStr $0 HKLM "Software\CTeX" "Install"
+		${If} $0 == ""
+			StrCpy $0 "C:\CTEX"
+		${EndIf}
+		StrCpy $INSTDIR "$0\CTeX"
 	${EndIf}
-	StrCpy $INSTDIR "$0\CTeX"
 	
 	SectionSetSize ${Sec_song} 35000
 	SectionSetSize ${Sec_fs} 35000
