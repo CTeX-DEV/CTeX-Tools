@@ -50,8 +50,6 @@ Avaliable options:
 			  Normally there is no need to reset this option;
   [-ttf=....ttf/c]	  Specify name of the TrueType fonts;
   [-CJKname=...]	  CJKfamily name of the generated fonts;
-  [-psname=...]		  Postscript name of the fonts, can be omitted for
-			  Sim* fonts under Windows XP;
   [-cjkmap=...]	  	  Base name of the .map file to be placed under
 			  Fonts\\map. Defaults to be cjk (corresponds to 
 			  cjk.map and cjk_ttf.map);
@@ -234,26 +232,26 @@ elsif(!(-e "$ttf_folder\\$ttfname"))
 if($pfb)
 {
 	$extra_run="for %%i in ($range) do (\n  for %%j in ($range2) do (\n    if exist $pre$familyname%%i%%j.enc ttf2pt1 -W0 -b $switches%%i%%j  %ttfile% $pre$familyname%%i%%j\n))";
-	$md_afm="if not exist $destdir\\fonts\\afm\\Chinese\\$pre$familyname mkdir $destdir\\fonts\\afm\\Chinese\\$pre$familyname";
-	$md_type1="if not exist $destdir\\fonts\\type1\\Chinese\\$pre$familyname mkdir $destdir\\fonts\\type1\\Chinese\\$pre$familyname";
-	$mv_afm="move *.afm $destdir\\fonts\\afm\\Chinese\\$pre$familyname\\";
-	$mv_type1="move *.pfb $destdir\\fonts\\type1\\Chinese\\$pre$familyname\\"
+	$md_afm="if not exist $destdir\\fonts\\afm\\chinese\\$pre$familyname mkdir $destdir\\fonts\\afm\\chinese\\$pre$familyname";
+	$md_type1="if not exist $destdir\\fonts\\type1\\chinese\\$pre$familyname mkdir $destdir\\fonts\\type1\\chinese\\$pre$familyname";
+	$mv_afm="move *.afm $destdir\\fonts\\afm\\chinese\\$pre$familyname\\";
+	$mv_type1="move *.pfb $destdir\\fonts\\type1\\chinese\\$pre$familyname\\"
 }
 
 @genfonts=(
 	"\@echo off\n",
 	"set ttfile=$ttfdir\\$ttfname\n",
-	"if not exist $destdir\\fonts\\enc\\Chinese\\$pre$familyname mkdir $destdir\\fonts\\enc\\Chinese\\$pre$familyname\n",
-	"if not exist $destdir\\fonts\\tfm\\Chinese\\$pre$familyname mkdir $destdir\\fonts\\tfm\\Chinese\\$pre$familyname\n",
+	"if not exist $destdir\\fonts\\enc\\chinese\\$pre$familyname mkdir $destdir\\fonts\\enc\\chinese\\$pre$familyname\n",
+	"if not exist $destdir\\fonts\\tfm\\chinese\\$pre$familyname mkdir $destdir\\fonts\\tfm\\chinese\\$pre$familyname\n",
 	"if not exist $destdir\\ttf2tfm\\base mkdir $destdir\\ttf2tfm\\base\n",
 	"if not exist $destdir\\dvipdfm\\config mkdir $destdir\\dvipdfm\\config\n",
 	"$md_afm\n",
 	"$md_type1\n\n",
 	"ttf2tfm $ttfdir\\$ttfname -w $pre$familyname\@$Uenc\@.tfm\n",
 	"ttf2tfm $ttfdir\\$ttfname -s 0.167 $pre$familyname$slant\@$Uenc\@.tfm\n",
-	"move *.tfm $destdir\\fonts\\tfm\\Chinese\\$pre$familyname\n\n",
+	"move *.tfm $destdir\\fonts\\tfm\\chinese\\$pre$familyname\n\n",
 	"$extra_run\n",
-	"move *.enc $destdir\\fonts\\enc\\Chinese\\$pre$familyname\\\n",
+	"move *.enc $destdir\\fonts\\enc\\chinese\\$pre$familyname\\\n",
 	"$mv_afm\n",
 	"$mv_type1\n"
 );
@@ -304,7 +302,7 @@ for ($i=0;$i<$set_dim;$i=$i+1)
 {
 	for ($j=0;$j<$set2_dim;$j=$j+1)
 	{
-		if (-e "$destdir\\fonts\\enc\\Chinese\\$pre$familyname\\$pre$familyname@set[$i]@set[$j].enc")
+		if (-e "$destdir\\fonts\\enc\\chinese\\$pre$familyname\\$pre$familyname@set[$i]@set[$j].enc")
 		{
 			print FF "$pre$familyname@set[$i]@set[$j] < $pre$familyname@set[$i]@set[$j].enc < $ttfname\n";
 			print FF "$pre$familyname$slant@set[$i]@set[$j] < $pre$familyname@set[$i]@set[$j].enc < $ttfname\n";
@@ -319,13 +317,13 @@ if($pfb)
 	{
 		for ($j=0;$j<$set2_dim;$j=$j+1)
 		{
-			if (-e "$destdir\\fonts\\type1\\Chinese\\$pre$familyname\\$pre$familyname@set[i]@set[j].pfb") {
-				open(F, "<$destdir\\fonts\\type1\\Chinese\\$pre$familyname\\$pre$familyname@set[i]@set[j].pfb");
+			if (-e "$destdir\\fonts\\type1\\chinese\\$pre$familyname\\$pre$familyname@set[i]@set[j].pfb") {
+				open(F, "<$destdir\\fonts\\type1\\chinese\\$pre$familyname\\$pre$familyname@set[i]@set[j].pfb");
 				@pfb=<F>;
 				close(F);
 				@pfb=grep(/\/FontName.*def/, @pfb);
 				$psname = @pfb[0];
-				$psname =~ s/\/FontName \/(.+)-.+ def/$1/;
+				$psname =~ s|/FontName /(.+)-\w{2} def.*|$1|s;
 				last get_psname;
 			}
 		}
@@ -335,7 +333,7 @@ if($pfb)
 	{
 		for ($j=0;$j<$set2_dim;$j=$j+1)
 		{
-			if (-e "$destdir\\fonts\\enc\\Chinese\\$pre$familyname\\$pre$familyname@set[$i]@set[$j].enc")
+			if (-e "$destdir\\fonts\\enc\\chinese\\$pre$familyname\\$pre$familyname@set[$i]@set[$j].enc")
 			{
 				print GG "$pre$familyname@set[$i]@set[$j]  $psname-@set[$i]@set[$j] < $pre$familyname@set[$i]@set[$j].pfb\n";
 				print GG "$pre$familyname$slant@set[$i]@set[$j]  $psname-@set[$i]@set[$j] \" .167 SlantFont \" < $pre$familyname@set[$i]@set[$j].pfb\n";
