@@ -93,6 +93,20 @@ Section -Init
 	File "FontSetup\*.*"
 SectionEnd
 
+Section -BreakTTC
+	StrCpy $0 $TTF_song 3 -1
+	${If} $0 == "ttc"
+		StrCpy $9 $TTF_song
+		StrCpy $TTF_song "${TTF_FONTS}\simsun.ttf"
+		${IfNot} ${FileExists} $TTF_song
+			ExecWait 'BREAKTTC.exe "$9"'
+			CreateDirectory "${TTF_FONTS}"
+			Rename "FONT00.TTF" "$TTF_song"
+			Delete "*.TTF"
+		${EndIf}
+	${EndIf}
+SectionEnd
+
 Section "$(SongTi)" Sec_song
 	${Make_Font} "song"
 	${Install_Font} "song"
