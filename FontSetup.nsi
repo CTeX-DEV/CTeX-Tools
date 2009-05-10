@@ -2,7 +2,11 @@
 !include "Sections.nsh"
 !include "FileFunc.nsh"
 
-Name "CTeX Font Setup"
+!define APP_NAME    "CTeX Font Setup"
+!define APP_VERSION "1.0"
+
+Name "${APP_NAME}"
+BrandingText "${APP_NAME} ${APP_VERSION} (C) CTEX.ORG"
 OutFile "FontSetup.exe"
 
 ShowInstDetails nevershow
