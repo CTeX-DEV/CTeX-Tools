@@ -11,16 +11,20 @@ SetCompressor /SOLID LZMA
 
 !include "MUI2.nsh"
 
+!insertmacro MUI_PAGE_DIRECTORY
+!define MUI_PAGE_CUSTOMFUNCTION_PRE PageComponentsPre
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_INSTFILES
 
 !insertmacro MUI_LANGUAGE "SimpChinese"
+!insertmacro MUI_LANGUAGE "English"
 !insertmacro MUI_RESERVEFILE_LANGDLL
 
 !define TTF_FONTS "$INSTDIR\fonts\truetype\chinese"
-!define FontsGen "$WorkDir\FontsGen.exe"
+!define FontsGen "$TempDir\FontsGen.exe"
 
-Var WorkDir
+Var CTEXSETUP
+Var TempDir
 Var TTF_song
 Var TTF_fs
 Var TTF_hei
@@ -48,7 +52,7 @@ Var TTF_you
 !define Check_TTF "!insertmacro _Check_TTF"
 
 !macro _Make_Font CJK_NAME
-	DetailPrint "正在处理 $TTF_${CJK_NAME}"
+	DetailPrint "Processing: $TTF_${CJK_NAME}"
 	${GetParent} "$TTF_${CJK_NAME}" $0
 	${GetFileName} "$TTF_${CJK_NAME}" $1
 	SetDetailsPrint none
@@ -58,78 +62,97 @@ Var TTF_you
 !macroend
 !define Make_Font "!insertmacro _Make_Font"
 
+!macro _Install_FontFiles TYPE CJKNAME
+	CreateDirectory "$INSTDIR\fonts\${TYPE}\chinese"
+	CopyFiles /SILENT "$TempDir\Fonts\fonts\${TYPE}\chinese\uni${CJK_NAME}" "$INSTDIR\fonts\${TYPE}\chinese"
+	CopyFiles /SILENT "$TempDir\Fonts\fonts\${TYPE}\chinese\gbk${CJK_NAME}" "$INSTDIR\fonts\${TYPE}\chinese"
+!macroend
+!define Install_FontFiles "!insertmacro _Install_FontFiles"
+
 !macro _Install_Font CJK_NAME
-	CreateDirectory "$INSTDIR\fonts\tfm\chinese"
-	CopyFiles /SILENT "$WorkDir\Fonts\fonts\tfm\chinese\uni${CJK_NAME}" "$INSTDIR\fonts\tfm\chinese"
-	CopyFiles /SILENT "$WorkDir\Fonts\fonts\tfm\chinese\gbk${CJK_NAME}" "$INSTDIR\fonts\tfm\chinese"
-	CreateDirectory "$INSTDIR\fonts\afm\chinese"
-	CopyFiles /SILENT "$WorkDir\Fonts\fonts\afm\chinese\uni${CJK_NAME}" "$INSTDIR\fonts\afm\chinese"
-	CopyFiles /SILENT "$WorkDir\Fonts\fonts\afm\chinese\gbk${CJK_NAME}" "$INSTDIR\fonts\afm\chinese"
-	CreateDirectory "$INSTDIR\fonts\enc\chinese"
-	CopyFiles /SILENT "$WorkDir\Fonts\fonts\enc\chinese\uni${CJK_NAME}" "$INSTDIR\fonts\enc\chinese"
-	CopyFiles /SILENT "$WorkDir\Fonts\fonts\enc\chinese\gbk${CJK_NAME}" "$INSTDIR\fonts\enc\chinese"
-	CreateDirectory "$INSTDIR\fonts\type1\chinese"
-	CopyFiles /SILENT "$WorkDir\Fonts\fonts\type1\chinese\uni${CJK_NAME}" "$INSTDIR\fonts\type1\chinese"
-	CopyFiles /SILENT "$WorkDir\Fonts\fonts\type1\chinese\gbk${CJK_NAME}" "$INSTDIR\fonts\type1\chinese"
+	${Install_FontFiles} "tfm" ${CJK_NAME}
+	${Install_FontFiles} "afm" ${CJK_NAME}
+	${Install_FontFiles} "enc" ${CJK_NAME}
+	${Install_FontFiles} "type1" ${CJK_NAME}
 	CreateDirectory "$INSTDIR\fonts\map\chinese"
-	CopyFiles /SILENT "$WorkDir\Fonts\fonts\map\cjk.map" "$INSTDIR\fonts\map\chinese\cjk-${CJK_NAME}.map"
-	CopyFiles /SILENT "$WorkDir\Fonts\fonts\map\cjk_ttf.map" "$INSTDIR\fonts\map\chinese\cjk-${CJK_NAME}-ttf.map"
-	RMDir /r "$WorkDir\Fonts"
+	CopyFiles /SILENT "$TempDir\Fonts\fonts\map\cjk-${CJK_NAME}.map" "$INSTDIR\fonts\map\chinese\cjk-${CJK_NAME}.map"
+	CopyFiles /SILENT "$TempDir\Fonts\fonts\map\cjk-${CJK_NAME}-ttf.map" "$INSTDIR\fonts\map\chinese\cjk-${CJK_NAME}-ttf.map"
+	RMDir /r "$TempDir\Fonts"
 !macroend
 !define Install_Font "!insertmacro _Install_Font"
 
 Section -Init
-	StrCpy $WorkDir "$INSTDIR\fontsetup.tmp"
-	CreateDirectory $WorkDir
-	SetOutPath $WorkDir
+	GetTempFileName $TempDir
+	Delete $TempDir
+	CreateDirectory $TempDir
+	SetOutPath $TempDir
 	File "FontSetup\*.*"
 SectionEnd
 
-Section "宋体" Sec_song
+Section "$(SongTi)" Sec_song
 	${Make_Font} "song"
 	${Install_Font} "song"
 SectionEnd
 
-Section "仿宋" Sec_fs
+Section "$(FangSong)" Sec_fs
 	${Make_Font} "fs"
 	${Install_Font} "fs"
 SectionEnd
 
-Section "黑体" Sec_hei
+Section "$(HeiTi)" Sec_hei
 	${Make_Font} "hei"
 	${Install_Font} "hei"
 SectionEnd
 
-Section "楷体" Sec_kai
+Section "$(KaiTi)" Sec_kai
 	${Make_Font} "kai"
 	${Install_Font} "kai"
 SectionEnd
 
-Section "隶书" Sec_li
+Section "$(LiShu)" Sec_li
 	${Make_Font} "li"
 	${Install_Font} "li"
 SectionEnd
 
-Section "幼圆" Sec_you
+Section "$(YouYuan)" Sec_you
 	${Make_Font} "you"
 	${Install_Font} "you"
 SectionEnd
 
 Section -Finish
-	RMDir /r $WorkDir
+	SetOutPath $INSTDIR
+	RMDir /r $TempDir
+	${If} $CTEXSETUP == ""
+		ExecWait "initexmf.exe --update-fndb --quiet"
+		ExecWait "initexmf.exe --mkmaps --quiet"
+	${EndIf}
 SectionEnd
 
 Function .onInit
-	${If} ${FileExists} "$EXEDIR\FontSetup.ini"
-		ReadINIStr $0 "$EXEDIR\FontSetup.ini" "CTeX" "Install"
+	${GetParameters} $R0
+	${GetOptions} $R0 "/CTEXSETUP" $CTEXSETUP
+	${GetOptions} $R0 "/LANG=" $0
+	${If} $0 != ""
+		StrCpy $LANGUAGE $0
 	${Else}
-		ReadRegStr $0 HKLM "Software\CTeX" "Install"
+		!insertmacro MUI_LANGDLL_DISPLAY
 	${EndIf}
+
+	ReadRegStr $0 HKLM "Software\CTeX" "Install"
 	${If} $0 == ""
 		StrCpy $0 "C:\CTEX"
 	${EndIf}
 	StrCpy $INSTDIR "$0\CTeX"
+	
+	SectionSetSize ${Sec_song} 35000
+	SectionSetSize ${Sec_fs} 35000
+	SectionSetSize ${Sec_hei} 35000
+	SectionSetSize ${Sec_kai} 35000
+	SectionSetSize ${Sec_li} 35000
+	SectionSetSize ${Sec_you} 35000
+FunctionEnd
 
+Function PageComponentsPre
 	${Check_TTF} "song" "simsun.ttf"
 	${If} $TTF_song == ""
 		${Check_TTF} "song" "simsun.ttc"
@@ -141,3 +164,15 @@ Function .onInit
 	${Check_TTF} "you" "simyou.ttf"
 FunctionEnd
 
+LangString SongTi ${LANG_SIMPCHINESE} "宋体"
+LangString SongTi ${LANG_ENGLISH} "Song Ti"
+LangString FangSong ${LANG_SIMPCHINESE} "仿宋"
+LangString FangSong ${LANG_ENGLISH} "Fang Song"
+LangString HeiTi ${LANG_SIMPCHINESE} "黑体"
+LangString HeiTi ${LANG_ENGLISH} "Hei Ti"
+LangString KaiTi ${LANG_SIMPCHINESE} "楷体"
+LangString KaiTi ${LANG_ENGLISH} "Kai Ti"
+LangString LiShu ${LANG_SIMPCHINESE} "隶书"
+LangString LiShu ${LANG_ENGLISH} "Li Shu"
+LangString YouYuan ${LANG_SIMPCHINESE} "幼圆"
+LangString YouYuan ${LANG_ENGLISH} "You Yuan"
