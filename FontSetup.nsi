@@ -15,6 +15,8 @@ SetCompressor /SOLID LZMA
 
 !include "MUI2.nsh"
 
+!define MUI_ICON "FontSetup.ico"
+
 !insertmacro MUI_PAGE_DIRECTORY
 !define MUI_PAGE_CUSTOMFUNCTION_PRE PageComponentsPre
 !insertmacro MUI_PAGE_COMPONENTS
