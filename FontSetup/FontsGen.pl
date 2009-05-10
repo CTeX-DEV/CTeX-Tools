@@ -324,7 +324,7 @@ if($pfb)
 				@pfb=<F>;
 				close(F);
 				@pfb=grep(/\/FontName.*def/, @pfb);
-				$psname = @pfb[1];
+				$psname = @pfb[0];
 				$psname =~ s/\/FontName \/(.+)-.+ def/$1/;
 				last get_psname;
 			}
@@ -337,13 +337,8 @@ if($pfb)
 		{
 			if (-e "$destdir\\fonts\\enc\\Chinese\\$pre$familyname\\$pre$familyname@set[$i]@set[$j].enc")
 			{
-				print FF "$pre$familyname@set[$i]@set[$j] < $pre$familyname@set[$i]@set[$j].enc < $ttfname\n";
-				print FF "$pre$familyname$slant@set[$i]@set[$j] < $pre$familyname@set[$i]@set[$j].enc < $ttfname\n";
-				if($pfb)
-				{
-					print GG "$pre$familyname@set[$i]@set[$j]  $psname-@set[$i]@set[$j] < $pre$familyname@set[$i]@set[$j].pfb\n";
-					print GG "$pre$familyname$slant@set[$i]@set[$j]  $psname-@set[$i]@set[$j] \" .167 SlantFont \" < $pre$familyname@set[$i]@set[$j].pfb\n";
-				}
+				print GG "$pre$familyname@set[$i]@set[$j]  $psname-@set[$i]@set[$j] < $pre$familyname@set[$i]@set[$j].pfb\n";
+				print GG "$pre$familyname$slant@set[$i]@set[$j]  $psname-@set[$i]@set[$j] \" .167 SlantFont \" < $pre$familyname@set[$i]@set[$j].pfb\n";
 			}
 		}	
 	}			
