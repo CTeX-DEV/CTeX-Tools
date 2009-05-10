@@ -103,7 +103,7 @@ Section -BreakTTC
 		${IfNot} ${FileExists} $TTF_song
 			ExecWait 'BREAKTTC.exe "$9"'
 			CreateDirectory "${TTF_FONTS}"
-			Rename "FONT00.TTF" "$TTF_song"
+			CopyFiles /SILENT "FONT00.TTF" "$TTF_song"
 			Delete "*.TTF"
 		${EndIf}
 	${EndIf}
