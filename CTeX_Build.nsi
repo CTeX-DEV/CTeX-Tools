@@ -43,9 +43,11 @@ Section "Full Version" SectionFull
 SectionEnd
 
 Section
-	Call ReadBuildNumber
-	Call UpdateBuildNumber
-	Call WriteBuildNumber
+	${IfNot} ${Errors}
+		Call ReadBuildNumber
+		Call UpdateBuildNumber
+		Call WriteBuildNumber
+	${EndIf}
 SectionEnd
 
 Function .onInit
