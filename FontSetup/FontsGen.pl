@@ -230,32 +230,6 @@ elsif(!(-e "$ttf_folder\\$ttfname"))
 	print "TrueType font file $ttfname not found!\n";
 	exit
 }
-
-$psname=$ttfbase;
-if($ttfbase eq "simsun")
-{
-	$psname="SimSun";
-}
-if($ttfbase eq "simkai")
-{
-	$psname="KaiTi_GB2312";
-}
-if($ttfbase eq "simhei")
-{
-	$psname="SimHei";
-}
-if($ttfbase eq "simfang")
-{
-	$psname="FangSong_GB2312";
-}
-if($ttfbase eq "simli")
-{
-	$psname="LiSu";
-}
-if($ttfbase eq "simyou")
-{
-	$psname="YouYuan";
-}
 	
 if($pfb)
 {
@@ -322,9 +296,8 @@ if(!(-e "$destdir\\fonts\\map"))
 	mkdir "$destdir\\fonts\\map";
 }
 
-$ttfsuffix="_ttf";
-open(FF, ">> $destdir\\fonts\\map\\$cjkmapbase$ttfsuffix.map");
-open(GG, ">> $destdir\\fonts\\map\\$cjkmapbase.map");
+$ttfsuffix="-ttf";
+open(FF, ">> $destdir\\fonts\\map\\$cjkmapbase-$familyname$ttfsuffix.map");
 
 @set=("0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f");
 for ($i=0;$i<$set_dim;$i=$i+1)
@@ -335,15 +308,48 @@ for ($i=0;$i<$set_dim;$i=$i+1)
 		{
 			print FF "$pre$familyname@set[$i]@set[$j] < $pre$familyname@set[$i]@set[$j].enc < $ttfname\n";
 			print FF "$pre$familyname$slant@set[$i]@set[$j] < $pre$familyname@set[$i]@set[$j].enc < $ttfname\n";
-			print GG "$pre$familyname@set[$i]@set[$j]  $psname-@set[$i]@set[$j] < $pre$familyname@set[$i]@set[$j].pfb\n";
-			print GG "$pre$familyname$slant@set[$i]@set[$j]  $psname-@set[$i]@set[$j] \" .167 SlantFont \" < $pre$familyname@set[$i]@set[$j].pfb\n";
 		}
 	}	
 }			
 print FF "\n";
 close(FF);
-print GG "\n";
-close(GG);
+if($pfb)
+{
+	get_psname: for ($i=0;$i<$set_dim;$i=$i+1)
+	{
+		for ($j=0;$j<$set2_dim;$j=$j+1)
+		{
+			if (-e "$destdir\\fonts\\type1\\Chinese\\$pre$familyname\\$pre$familyname@set[i]@set[j].pfb") {
+				open(F, "<$destdir\\fonts\\type1\\Chinese\\$pre$familyname\\$pre$familyname@set[i]@set[j].pfb");
+				@pfb=<F>;
+				close(F);
+				@pfb=grep(/\/FontName.*def/, @pfb);
+				$psname = @pfb[1];
+				$psname =~ s/\/FontName \/(.+)-.+ def/$1/;
+				last get_psname;
+			}
+		}
+	}
+	open(GG, ">> $destdir\\fonts\\map\\$cjkmapbase-$familyname.map");
+	for ($i=0;$i<$set_dim;$i=$i+1)
+	{
+		for ($j=0;$j<$set2_dim;$j=$j+1)
+		{
+			if (-e "$destdir\\fonts\\enc\\Chinese\\$pre$familyname\\$pre$familyname@set[$i]@set[$j].enc")
+			{
+				print FF "$pre$familyname@set[$i]@set[$j] < $pre$familyname@set[$i]@set[$j].enc < $ttfname\n";
+				print FF "$pre$familyname$slant@set[$i]@set[$j] < $pre$familyname@set[$i]@set[$j].enc < $ttfname\n";
+				if($pfb)
+				{
+					print GG "$pre$familyname@set[$i]@set[$j]  $psname-@set[$i]@set[$j] < $pre$familyname@set[$i]@set[$j].pfb\n";
+					print GG "$pre$familyname$slant@set[$i]@set[$j]  $psname-@set[$i]@set[$j] \" .167 SlantFont \" < $pre$familyname@set[$i]@set[$j].pfb\n";
+				}
+			}
+		}	
+	}			
+	print GG "\n";
+	close(GG);
+}
 
 @genfd=(
 "% This is the file $fdpre$familyname.fd of the CJK package\n",
