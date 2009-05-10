@@ -87,7 +87,7 @@ Var TTF_you
 !macroend
 !define Install_Font "!insertmacro _Install_Font"
 
-Section -Init
+Section -Init Sec_init
 	GetTempFileName $TempDir
 	Delete $TempDir
 	CreateDirectory $TempDir
@@ -95,8 +95,8 @@ Section -Init
 	File "FontSetup\*.*"
 SectionEnd
 
-Section -BreakTTC
-	StrCpy $0 $TTF_song 3 -1
+Section -BreakTTC Sec_breakttc
+	StrCpy $0 $TTF_song 3 -3
 	${If} $0 == "ttc"
 		StrCpy $9 $TTF_song
 		StrCpy $TTF_song "${TTF_FONTS}\simsun.ttf"
@@ -150,7 +150,7 @@ SectionEnd
 
 Function .onInit
 	${GetParameters} $R0
-	${GetOptions} $R0 "/CTEXSETUP" $CTEXSETUP
+	${GetOptions} $R0 "/CTEXSETUP=" $CTEXSETUP
 	${GetOptions} $R0 "/LANG=" $0
 	${If} $0 != ""
 		StrCpy $LANGUAGE $0
@@ -168,6 +168,8 @@ Function .onInit
 		StrCpy $INSTDIR "$0\CTeX"
 	${EndIf}
 	
+	SectionSetSize ${Sec_init} 0
+	SectionSetSize ${Sec_breakttc} 0
 	SectionSetSize ${Sec_song} 35000
 	SectionSetSize ${Sec_fs} 35000
 	SectionSetSize ${Sec_hei} 35000
