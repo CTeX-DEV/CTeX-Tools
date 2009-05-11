@@ -3,7 +3,7 @@
 !include "FileFunc.nsh"
 
 !define APP_NAME    "CTeX Font Setup"
-!define APP_VERSION "1.0"
+!define APP_VERSION "1.1"
 
 Name "${APP_NAME}"
 BrandingText "${APP_NAME} ${APP_VERSION} (C) CTEX.ORG"
@@ -94,7 +94,9 @@ Section -Init Sec_init
 	File "FontSetup\*.*"
 SectionEnd
 
-Section -BreakTTC Sec_breakttc
+SectionGroup "$(BreakTTC)"
+
+Section "$(SongTi)" Sec_bt_song
 	StrCpy $0 $TTF_song 3 -3
 	${If} $0 == "ttc"
 		StrCpy $9 $TTF_song
@@ -107,6 +109,10 @@ Section -BreakTTC Sec_breakttc
 		${EndIf}
 	${EndIf}
 SectionEnd
+
+SectionGroupEnd
+
+SectionGroup "Type1"
 
 Section "$(SongTi)" Sec_song
 	${Make_Font} "song"
@@ -138,6 +144,8 @@ Section "$(YouYuan)" Sec_you
 	${Install_Font} "you"
 SectionEnd
 
+SectionGroupEnd
+
 Section -Finish
 	SetOutPath $INSTDIR
 	RMDir /r $TempDir
@@ -168,7 +176,7 @@ Function .onInit
 	${EndIf}
 	
 	SectionSetSize ${Sec_init} 0
-	SectionSetSize ${Sec_breakttc} 0
+	SectionSetSize ${Sec_bt_song} 15000
 	SectionSetSize ${Sec_song} 35000
 	SectionSetSize ${Sec_fs} 35000
 	SectionSetSize ${Sec_hei} 35000
@@ -189,6 +197,8 @@ Function PageComponentsPre
 	${Check_TTF} "you" "simyou.ttf"
 FunctionEnd
 
+LangString BreakTTC ${LANG_SIMPCHINESE} "从ttc中提取ttf"
+LangString BreakTTC ${LANG_ENGLISH} "Extract ttf from ttc"
 LangString SongTi ${LANG_SIMPCHINESE} "宋体"
 LangString SongTi ${LANG_ENGLISH} "Song Ti"
 LangString FangSong ${LANG_SIMPCHINESE} "仿宋"
