@@ -82,7 +82,6 @@ Var TTF_you
 	${Install_FontFiles} "type1" ${CJK_NAME}
 	CreateDirectory "$INSTDIR\fonts\map\chinese"
 	CopyFiles /SILENT "$TempDir\Fonts\fonts\map\cjk-${CJK_NAME}.map" "$INSTDIR\fonts\map\chinese\cjk-${CJK_NAME}.map"
-	CopyFiles /SILENT "$TempDir\Fonts\fonts\map\cjk-${CJK_NAME}-ttf.map" "$INSTDIR\fonts\map\chinese\cjk-${CJK_NAME}-ttf.map"
 	RMDir /r "$TempDir\Fonts"
 !macroend
 !define Install_Font "!insertmacro _Install_Font"
