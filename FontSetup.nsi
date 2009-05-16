@@ -33,6 +33,10 @@ SetCompressor /SOLID LZMA
 !define FontsGen "$TempDir\FontsGen.exe"
 
 Var CTEXSETUP
+Var BreakTTC
+Var TFM
+Var Type1
+Var UPDMAP
 Var TempDir
 Var TTF_song
 Var TTF_fs
@@ -65,8 +69,8 @@ Var TTF_you
 	${GetParent} "$TTF_${CJK_NAME}" $0
 	${GetFileName} "$TTF_${CJK_NAME}" $1
 	SetDetailsPrint none
-	ExecWait "${FontsGen} -ttfdir=$0 -destdir=Fonts -Type1 -encoding=UTF8 -ttf=$1 -CJKname=${CJK_NAME} -stemv=50"
-	ExecWait "${FontsGen} -ttfdir=$0 -destdir=Fonts -Type1 -encoding=GBK  -ttf=$1 -CJKname=${CJK_NAME} -stemv=50"
+	ExecWait "${FontsGen} -ttfdir=$0 -destdir=Fonts $Type1 -encoding=UTF8 -ttf=$1 -CJKname=${CJK_NAME} -stemv=50"
+	ExecWait "${FontsGen} -ttfdir=$0 -destdir=Fonts $Type1 -encoding=GBK  -ttf=$1 -CJKname=${CJK_NAME} -stemv=50"
 	SetDetailsPrint lastused
 !macroend
 !define Make_Font "!insertmacro _Make_Font"
@@ -78,13 +82,27 @@ Var TTF_you
 !macroend
 !define Install_FontFiles "!insertmacro _Install_FontFiles"
 
-!macro _Install_Font CJK_NAME
+!macro _Install_TFM_Font CJK_NAME
 	${Install_FontFiles} "tfm" ${CJK_NAME}
+!macroend
+!define Install_TFM_Font "!insertmacro _Install_TFM_Font"
+
+!macro _Install_Type1_Font CJK_NAME
 	${Install_FontFiles} "afm" ${CJK_NAME}
 	${Install_FontFiles} "enc" ${CJK_NAME}
 	${Install_FontFiles} "type1" ${CJK_NAME}
 	CreateDirectory "$INSTDIR\fonts\map\chinese"
 	CopyFiles /SILENT "$TempDir\Fonts\fonts\map\cjk-${CJK_NAME}.map" "$INSTDIR\fonts\map\chinese\cjk-${CJK_NAME}.map"
+!macroend
+!define Install_Type1_Font "!insertmacro _Install_Type1_Font"
+
+!macro _Install_Font CJK_NAME
+	${If} $TFM != ""
+		${Install_TFM_Font} ${CJK_NAME}
+	${EndIf}
+	${If} $Type1 != ""
+		${Install_Type1_Font} ${CJK_NAME}
+	${EndIf}
 	RMDir /r "$TempDir\Fonts"
 !macroend
 !define Install_Font "!insertmacro _Install_Font"
@@ -97,9 +115,26 @@ Section -Init Sec_init
 	File "FontSetup\*.*"
 SectionEnd
 
-SectionGroup "$(BreakTTC)"
+Section "$(BreakTTC)" Sec_BreakTTC
+	StrCpy $BreakTTC "1"
+SectionEnd
 
-Section "$(SongTi)" Sec_bt_song
+Section "$(TFM)" Sec_TFM
+	StrCpy $TFM "1"
+SectionEnd
+
+SectionGroup "$(Type1)" Sec_Type1
+Section
+	StrCpy $Type1 "-Type1"
+SectionEnd
+Section "$(UPDMAP)" Sec_UPDMAP
+	StrCpy $UPDMAP "1"
+SectionEnd
+SectionGroupEnd
+
+SectionGroup "$(Fonts)" Sec_Fonts
+
+Section "$(SongTi)" Sec_song
 	StrCpy $0 $TTF_song 3 -3
 	${If} $0 == "ttc"
 		StrCpy $9 $TTF_song
@@ -111,13 +146,7 @@ Section "$(SongTi)" Sec_bt_song
 			Delete "*.TTF"
 		${EndIf}
 	${EndIf}
-SectionEnd
 
-SectionGroupEnd
-
-SectionGroup "Type1"
-
-Section "$(SongTi)" Sec_song
 	${Make_Font} "song"
 	${Install_Font} "song"
 SectionEnd
@@ -150,6 +179,9 @@ SectionEnd
 SectionGroupEnd
 
 Section -Finish
+	${If} $UPDMAP != ""
+		; todo
+	${EndIf}
 	SetOutPath $INSTDIR
 	RMDir /r $TempDir
 	${If} $CTEXSETUP == ""
@@ -177,15 +209,41 @@ Function .onInit
 		${EndIf}
 		StrCpy $INSTDIR "$0\CTeX"
 	${EndIf}
+
+	StrCpy $BreakTTC ""
+	StrCpy $TFM ""
+	StrCpy $Type1 ""
+	StrCPy $UPDMAP ""
 	
+	!insertmacro UnselectSection ${Sec_Type1}
+	
+	Call .onSelChange
+FunctionEnd
+
+Function .onSelChange
 	SectionSetSize ${Sec_init} 0
-	SectionSetSize ${Sec_bt_song} 15000
-	SectionSetSize ${Sec_song} 35000
-	SectionSetSize ${Sec_fs} 35000
-	SectionSetSize ${Sec_hei} 35000
-	SectionSetSize ${Sec_kai} 35000
-	SectionSetSize ${Sec_li} 35000
-	SectionSetSize ${Sec_you} 35000
+	
+	${If} ${SectionIsSelected} ${Sec_Type1}
+		SectionSetSize ${Sec_song} 35000
+		SectionSetSize ${Sec_fs} 35000
+		SectionSetSize ${Sec_hei} 35000
+		SectionSetSize ${Sec_kai} 35000
+		SectionSetSize ${Sec_li} 35000
+		SectionSetSize ${Sec_you} 35000
+	${Else}
+		SectionSetSize ${Sec_song} 0
+		SectionSetSize ${Sec_fs} 0
+		SectionSetSize ${Sec_hei} 0
+		SectionSetSize ${Sec_kai} 0
+		SectionSetSize ${Sec_li} 0
+		SectionSetSize ${Sec_you} 0
+	${EndIf}
+
+	${If} ${SectionIsSelected} ${Sec_BreakTTC}
+		SectionGetSize ${Sec_song} $0
+		IntOp $0 $0 + 15000
+		SectionSetSize ${Sec_song} $0
+	${EndIf}
 FunctionEnd
 
 Function PageComponentsPre
@@ -202,6 +260,14 @@ FunctionEnd
 
 LangString BreakTTC ${LANG_SIMPCHINESE} "从ttc中提取ttf"
 LangString BreakTTC ${LANG_ENGLISH} "Extract ttf from ttc"
+LangString TFM ${LANG_SIMPCHINESE} "生成TFM文件"
+LangString TFM ${LANG_ENGLISH} "Generate TFM files"
+LangString Type1 ${LANG_SIMPCHINESE} "生成Type1字库"
+LangString Type1 ${LANG_ENGLISH} "Generate Type1 fonts"
+LangString UPDMAP ${LANG_SIMPCHINESE} "修改updmap.cfg"
+LangString UPDMAP ${LANG_ENGLISH} "Modify updmap.cfg"
+LangString Fonts ${LANG_SIMPCHINESE} "可用字体"
+LangString Fonts ${LANG_ENGLISH} "Available Fonts"
 LangString SongTi ${LANG_SIMPCHINESE} "宋体"
 LangString SongTi ${LANG_ENGLISH} "Song Ti"
 LangString FangSong ${LANG_SIMPCHINESE} "仿宋"

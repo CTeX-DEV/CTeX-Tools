@@ -229,32 +229,37 @@ elsif(!(-e "$ttf_folder\\$ttfname"))
 	exit
 }
 	
-if($pfb)
-{
-	$extra_run="for %%i in ($range) do (\n  for %%j in ($range2) do (\n    if exist $pre$familyname%%i%%j.enc ttf2pt1 -W0 -b $switches%%i%%j  %ttfile% $pre$familyname%%i%%j\n))";
-	$md_afm="if not exist $destdir\\fonts\\afm\\chinese\\$pre$familyname mkdir $destdir\\fonts\\afm\\chinese\\$pre$familyname";
-	$md_type1="if not exist $destdir\\fonts\\type1\\chinese\\$pre$familyname mkdir $destdir\\fonts\\type1\\chinese\\$pre$familyname";
-	$mv_afm="move *.afm $destdir\\fonts\\afm\\chinese\\$pre$familyname\\";
-	$mv_type1="move *.pfb $destdir\\fonts\\type1\\chinese\\$pre$familyname\\"
-}
-
 @genfonts=(
 	"\@echo off\n",
-	"set ttfile=$ttfdir\\$ttfname\n",
-	"if not exist $destdir\\fonts\\enc\\chinese\\$pre$familyname mkdir $destdir\\fonts\\enc\\chinese\\$pre$familyname\n",
-	"if not exist $destdir\\fonts\\tfm\\chinese\\$pre$familyname mkdir $destdir\\fonts\\tfm\\chinese\\$pre$familyname\n",
 	"if not exist $destdir\\ttf2tfm\\base mkdir $destdir\\ttf2tfm\\base\n",
 	"if not exist $destdir\\dvipdfm\\config mkdir $destdir\\dvipdfm\\config\n",
-	"$md_afm\n",
-	"$md_type1\n\n",
-	"ttf2tfm $ttfdir\\$ttfname -w $pre$familyname\@$Uenc\@.tfm\n",
+	"set ttfile=$ttfdir\\$ttfname\n",
+	"if not exist $destdir\\fonts\\tfm\\chinese\\$pre$familyname mkdir $destdir\\fonts\\tfm\\chinese\\$pre$familyname\n",
+	"ttf2tfm $ttfdir\\$ttfname $pre$familyname\@$Uenc\@.tfm\n",
 	"ttf2tfm $ttfdir\\$ttfname -s 0.167 $pre$familyname$slant\@$Uenc\@.tfm\n",
-	"move *.tfm $destdir\\fonts\\tfm\\chinese\\$pre$familyname\n\n",
-	"$extra_run\n",
-	"move *.enc $destdir\\fonts\\enc\\chinese\\$pre$familyname\\\n",
-	"$mv_afm\n",
-	"$mv_type1\n"
+	"move *.tfm $destdir\\fonts\\tfm\\chinese\\$pre$familyname\n\n"
 );
+if($pfb)
+{
+	@genfonts=(
+		"\@echo off\n",
+		"if not exist $destdir\\ttf2tfm\\base mkdir $destdir\\ttf2tfm\\base\n",
+		"if not exist $destdir\\dvipdfm\\config mkdir $destdir\\dvipdfm\\config\n",
+		"set ttfile=$ttfdir\\$ttfname\n",
+		"if not exist $destdir\\fonts\\tfm\\chinese\\$pre$familyname mkdir $destdir\\fonts\\tfm\\chinese\\$pre$familyname\n",
+		"ttf2tfm $ttfdir\\$ttfname -w $pre$familyname\@$Uenc\@.tfm\n",
+		"ttf2tfm $ttfdir\\$ttfname -s 0.167 $pre$familyname$slant\@$Uenc\@.tfm\n",
+		"move *.tfm $destdir\\fonts\\tfm\\chinese\\$pre$familyname\n\n"
+		"for %%i in ($range) do (\n  for %%j in ($range2) do (\n    if exist $pre$familyname%%i%%j.enc ttf2pt1 -W0 -b $switches%%i%%j  %ttfile% $pre$familyname%%i%%j\n))\n",
+		"if not exist $destdir\\fonts\\afm\\chinese\\$pre$familyname mkdir $destdir\\fonts\\afm\\chinese\\$pre$familyname\n",
+		"if not exist $destdir\\fonts\\enc\\chinese\\$pre$familyname mkdir $destdir\\fonts\\enc\\chinese\\$pre$familyname\n",
+		"if not exist $destdir\\fonts\\type1\\chinese\\$pre$familyname mkdir $destdir\\fonts\\type1\\chinese\\$pre$familyname\n",
+		"move *.afm $destdir\\fonts\\afm\\chinese\\$pre$familyname\\\n",
+		"move *.enc $destdir\\fonts\\enc\\chinese\\$pre$familyname\\\n",
+		"move *.pfb $destdir\\fonts\\type1\\chinese\\$pre$familyname\\\n"
+	);
+}
+
 open(F, ">genfonts.bat");
 	print F @genfonts;
 close(F);
