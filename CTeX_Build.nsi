@@ -1,4 +1,7 @@
 
+!include "LogicLib.nsh"
+!include "Sections.nsh"
+
 Name "CTeX Build"
 OutFile "CTeX_Build.exe"
 
@@ -26,23 +29,23 @@ Section
 	Call WriteBuildNumber
 SectionEnd
 
-Section "Build Repair" SectionRepair
+Section "Build Repair" Sec_Repair
 	ExecWait "${Make} CTeX_Repair.nsi"
 SectionEnd
 
-Section "Build Update" SectionUpdate
+Section "Build Update" Sec_Update
 	ExecWait "${Make} CTeX_Update.nsi"
 SectionEnd
 
-Section "Build Basic Version" SectionBasic
+Section "Build Basic Version" Sec_Basic
 	ExecWait "${Make} CTeX_Setup.nsi"
 SectionEnd
 
-Section /o "Build Full Version" SectionFull
+Section /o "Build Full Version" Sec_Full
 	ExecWait "${Make} CTeX_Full.nsi"
 SectionEnd
 
-Section /o "Increment build number"
+Section "Increment build number"
 	${IfNot} ${Errors}
 		Call ReadBuildNumber
 		Call UpdateBuildNumber
@@ -50,9 +53,12 @@ Section /o "Increment build number"
 	${EndIf}
 SectionEnd
 
-Function .onInit
-  IntOp $0 ${SF_SELECTED} | ${SF_RO}
-  SectionSetFlags ${SectionRepair} $0
+Function .onSelChange
+	${If} ${SectionIsSelected} ${Sec_Update}
+	${OrIf} ${SectionIsSelected} ${Sec_Basic}
+	${OrIf} ${SectionIsSelected} ${Sec_Full}
+		!insertmacro SelectSection ${Sec_Repair}
+	${EndIf}
 FunctionEnd
 
 Function ReadBuildNumber
