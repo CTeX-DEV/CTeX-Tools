@@ -298,6 +298,10 @@ Function .onInit
 	StrCPy $UPDMAP ${Sec_UPDMAP_TTF}
 	
 	Call .onSelChange
+	
+	${If} ${Silent}
+		Call PageComponentsPre
+	${EndIf}
 FunctionEnd
 
 Function .onSelChange
