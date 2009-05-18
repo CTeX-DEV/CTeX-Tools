@@ -26,23 +26,23 @@ Section
 	Call WriteBuildNumber
 SectionEnd
 
-Section "Repair Tool" SectionRepair
+Section "Build Repair" SectionRepair
 	ExecWait "${Make} CTeX_Repair.nsi"
 SectionEnd
 
-Section "Update Tool" SectionUpdate
+Section "Build Update" SectionUpdate
 	ExecWait "${Make} CTeX_Update.nsi"
 SectionEnd
 
-Section "Basic Version" SectionBasic
+Section "Build Basic Version" SectionBasic
 	ExecWait "${Make} CTeX_Setup.nsi"
 SectionEnd
 
-Section "Full Version" SectionFull
+Section /o "Build Full Version" SectionFull
 	ExecWait "${Make} CTeX_Full.nsi"
 SectionEnd
 
-Section
+Section /o "Increment build number"
 	${IfNot} ${Errors}
 		Call ReadBuildNumber
 		Call UpdateBuildNumber
@@ -53,8 +53,6 @@ SectionEnd
 Function .onInit
   IntOp $0 ${SF_SELECTED} | ${SF_RO}
   SectionSetFlags ${SectionRepair} $0
-  IntOp $0 ${SF_SELECTED} !
-	SectionSetFlags ${SectionFull} $0
 FunctionEnd
 
 Function ReadBuildNumber
