@@ -68,13 +68,16 @@ Var TTF_you
 !define Check_TTF "!insertmacro _Check_TTF"
 
 !macro _Make_Font CJK_NAME
-	DetailPrint "Processing: $TTF_${CJK_NAME}"
-	${GetParent} "$TTF_${CJK_NAME}" $0
-	${GetFileName} "$TTF_${CJK_NAME}" $1
-	SetDetailsPrint none
-	ExecWait "${FontsGen} -ttfdir=$0 -destdir=Fonts $Type1 -encoding=UTF8 -ttf=$1 -CJKname=${CJK_NAME}"
-	ExecWait "${FontsGen} -ttfdir=$0 -destdir=Fonts $Type1 -encoding=GBK  -ttf=$1 -CJKname=${CJK_NAME}"
-	SetDetailsPrint lastused
+	${If} $TFM != ""
+	${OrIf} $Type1 != ""
+		DetailPrint "Processing: $TTF_${CJK_NAME}"
+		${GetParent} "$TTF_${CJK_NAME}" $0
+		${GetFileName} "$TTF_${CJK_NAME}" $1
+		SetDetailsPrint none
+		ExecWait "${FontsGen} -ttfdir=$0 -destdir=Fonts $Type1 -encoding=UTF8 -ttf=$1 -CJKname=${CJK_NAME}"
+		ExecWait "${FontsGen} -ttfdir=$0 -destdir=Fonts $Type1 -encoding=GBK  -ttf=$1 -CJKname=${CJK_NAME}"
+		SetDetailsPrint lastused
+	${EndIf}
 !macroend
 !define Make_Font "!insertmacro _Make_Font"
 
@@ -193,6 +196,7 @@ Section "$(UPDMAP_TTF)" Sec_UPDMAP_TTF
 	${GetParent} "${UPDMAP_CFG}" $R0
 	CreateDirectory "$R0"
 	FileOpen $0 "${UPDMAP_CFG}" a
+	FileSeek $0 0 END
 	FileWrite $0 "Map cjk-ttf.map$\r$\n"
 	FileClose $0
 SectionEnd
@@ -200,6 +204,7 @@ Section /o "$(UPDMAP_Type1)" Sec_UPDMAP_Type1
 	${GetParent} "${UPDMAP_CFG}" $R0
 	CreateDirectory "$R0"
 	FileOpen $0 "${UPDMAP_CFG}" a
+	FileSeek $0 0 END
 	FileWrite $0 "Map cjk-song.map$\r$\n"
 	FileWrite $0 "Map cjk-fs.map$\r$\n"
 	FileWrite $0 "Map cjk-hei.map$\r$\n"
