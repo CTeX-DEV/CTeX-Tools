@@ -1,6 +1,9 @@
 !include "LogicLib.nsh"
 !include "Sections.nsh"
 !include "FileFunc.nsh"
+!include "StrFunc.nsh"
+
+${StrStr}
 
 !define APP_NAME    "CTeX Font Setup"
 !define APP_COMPANY "CTEX.ORG"
@@ -30,10 +33,10 @@ SetCompressor /SOLID LZMA
 !insertmacro MUI_RESERVEFILE_LANGDLL
 
 !define TTF_FONTS "$INSTDIR\fonts\truetype\chinese"
+!define UPDMAP_CFG "$INSTDIR\miktex\config\updmap.cfg"
 !define FontsGen "$TempDir\FontsGen.exe"
 
 Var CTEXSETUP
-Var BreakTTC
 Var TFM
 Var Type1
 Var UPDMAP
@@ -69,8 +72,8 @@ Var TTF_you
 	${GetParent} "$TTF_${CJK_NAME}" $0
 	${GetFileName} "$TTF_${CJK_NAME}" $1
 	SetDetailsPrint none
-	ExecWait "${FontsGen} -ttfdir=$0 -destdir=Fonts $Type1 -encoding=UTF8 -ttf=$1 -CJKname=${CJK_NAME} -stemv=50"
-	ExecWait "${FontsGen} -ttfdir=$0 -destdir=Fonts $Type1 -encoding=GBK  -ttf=$1 -CJKname=${CJK_NAME} -stemv=50"
+	ExecWait "${FontsGen} -ttfdir=$0 -destdir=Fonts $Type1 -encoding=UTF8 -ttf=$1 -CJKname=${CJK_NAME}"
+	ExecWait "${FontsGen} -ttfdir=$0 -destdir=Fonts $Type1 -encoding=GBK  -ttf=$1 -CJKname=${CJK_NAME}"
 	SetDetailsPrint lastused
 !macroend
 !define Make_Font "!insertmacro _Make_Font"
@@ -108,6 +111,8 @@ Var TTF_you
 !define Install_Font "!insertmacro _Install_Font"
 
 Section -Init Sec_init
+	Call SectionInit
+
 	GetTempFileName $TempDir
 	Delete $TempDir
 	CreateDirectory $TempDir
@@ -116,25 +121,6 @@ Section -Init Sec_init
 SectionEnd
 
 Section "$(BreakTTC)" Sec_BreakTTC
-	StrCpy $BreakTTC "1"
-SectionEnd
-
-Section "$(TFM)" Sec_TFM
-	StrCpy $TFM "1"
-SectionEnd
-
-SectionGroup "$(Type1)" Sec_Type1
-Section
-	StrCpy $Type1 "-Type1"
-SectionEnd
-Section "$(UPDMAP)" Sec_UPDMAP
-	StrCpy $UPDMAP "1"
-SectionEnd
-SectionGroupEnd
-
-SectionGroup "$(Fonts)" Sec_Fonts
-
-Section "$(SongTi)" Sec_song
 	StrCpy $0 $TTF_song 3 -3
 	${If} $0 == "ttc"
 		StrCpy $9 $TTF_song
@@ -146,7 +132,87 @@ Section "$(SongTi)" Sec_song
 			Delete "*.TTF"
 		${EndIf}
 	${EndIf}
+SectionEnd
 
+Section "$(TFM)" Sec_TFM
+SectionEnd
+
+Section /o "$(Type1)" Sec_Type1
+SectionEnd
+
+SectionGroup /e "$(UPDMAP)" Sec_UPDMAP
+Section -RemoveAll
+	${If} ${FileExists} ${UPDMAP_CFG}
+		FileOpen $0 "${UPDMAP_CFG}" "r"
+		FileOpen $1 "${UPDMAP_CFG}.new" "w"
+		${Do}
+			FileRead $0 $9
+			${If} $9 == ""
+				${ExitDo}
+			${EndIf}
+			${StrStr} $8 $9 "cjk-"
+			${If} $8 != ""
+				StrCpy $7 $8 12
+				${If} $7 == "cjk-song.map"
+					${Continue}
+				${EndIf}
+				StrCpy $7 $8 10
+				${If} $7 == "cjk-fs.map"
+					${Continue}
+				${EndIf}
+				StrCpy $7 $8 11
+				${If} $7 == "cjk-hei.map"
+					${Continue}
+				${EndIf}
+				StrCpy $7 $8 11
+				${If} $7 == "cjk-kai.map"
+					${Continue}
+				${EndIf}
+				StrCpy $7 $8 10
+				${If} $7 == "cjk-li.map"
+					${Continue}
+				${EndIf}
+				StrCpy $7 $8 11
+				${If} $7 == "cjk-you.map"
+					${Continue}
+				${EndIf}
+				StrCpy $7 $8 11
+				${If} $7 == "cjk-ttf.map"
+					${Continue}
+				${EndIf}
+			${EndIf}
+			FileWrite $1 "$9"
+		${Loop}
+		FileClose $1
+		FileClose $0
+		Delete "${UPDMAP_CFG}"
+		Rename "${UPDMAP_CFG}.new" "${UPDMAP_CFG}"
+	${EndIf}
+SectionEnd
+Section "$(UPDMAP_TTF)" Sec_UPDMAP_TTF
+	${GetParent} "${UPDMAP_CFG}" $R0
+	CreateDirectory "$R0"
+	FileOpen $0 "${UPDMAP_CFG}" a
+	FileWrite $0 "Map cjk-ttf.map$\r$\n"
+	FileClose $0
+SectionEnd
+Section /o "$(UPDMAP_Type1)" Sec_UPDMAP_Type1
+	${GetParent} "${UPDMAP_CFG}" $R0
+	CreateDirectory "$R0"
+	FileOpen $0 "${UPDMAP_CFG}" a
+	FileWrite $0 "Map cjk-song.map$\r$\n"
+	FileWrite $0 "Map cjk-fs.map$\r$\n"
+	FileWrite $0 "Map cjk-hei.map$\r$\n"
+	FileWrite $0 "Map cjk-kai.map$\r$\n"
+	FileWrite $0 "Map cjk-li.map$\r$\n"
+	FileWrite $0 "Map cjk-you.map$\r$\n"
+	FileClose $0
+SectionEnd
+SectionGroupEnd
+
+SectionGroup "$(Fonts)" Sec_Fonts
+
+Section "$(SongTi)" Sec_song
 	${Make_Font} "song"
 	${Install_Font} "song"
 SectionEnd
@@ -179,9 +245,6 @@ SectionEnd
 SectionGroupEnd
 
 Section -Finish
-	${If} $UPDMAP != ""
-		; todo
-	${EndIf}
 	SetOutPath $INSTDIR
 	RMDir /r $TempDir
 	${If} $CTEXSETUP == ""
@@ -189,6 +252,23 @@ Section -Finish
 		ExecWait "initexmf.exe --mkmaps --quiet"
 	${EndIf}
 SectionEnd
+
+; Modern install component descriptions
+!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+	!insertmacro MUI_DESCRIPTION_TEXT ${Sec_BreakTTC} $(Desc_BreakTTC)
+	!insertmacro MUI_DESCRIPTION_TEXT ${Sec_TFM} $(Desc_TFM)
+	!insertmacro MUI_DESCRIPTION_TEXT ${Sec_Type1} $(Desc_Type1)
+	!insertmacro MUI_DESCRIPTION_TEXT ${Sec_UPDMAP} $(Desc_UPDMAP)
+	!insertmacro MUI_DESCRIPTION_TEXT ${Sec_UPDMAP_TTF} $(UPDMAP_TTF)
+	!insertmacro MUI_DESCRIPTION_TEXT ${Sec_UPDMAP_Type1} $(UPDMAP_Type1)
+	!insertmacro MUI_DESCRIPTION_TEXT ${Sec_Fonts} $(Desc_Fonts)
+	!insertmacro MUI_DESCRIPTION_TEXT ${Sec_song} $(SongTi)
+	!insertmacro MUI_DESCRIPTION_TEXT ${Sec_fs} $(FangSong)
+	!insertmacro MUI_DESCRIPTION_TEXT ${Sec_hei} $(HeiTi)
+	!insertmacro MUI_DESCRIPTION_TEXT ${Sec_kai} $(KaiTi)
+	!insertmacro MUI_DESCRIPTION_TEXT ${Sec_li} $(LiShu)
+	!insertmacro MUI_DESCRIPTION_TEXT ${Sec_you} $(YouYuan)
+!insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Function .onInit
 	${GetParameters} $R0
@@ -210,18 +290,19 @@ Function .onInit
 		StrCpy $INSTDIR "$0\CTeX"
 	${EndIf}
 
-	StrCpy $BreakTTC ""
-	StrCpy $TFM ""
-	StrCpy $Type1 ""
-	StrCPy $UPDMAP ""
-	
-	!insertmacro UnselectSection ${Sec_Type1}
+	StrCPy $UPDMAP ${Sec_UPDMAP_TTF}
 	
 	Call .onSelChange
 FunctionEnd
 
 Function .onSelChange
+  !insertmacro StartRadioButtons $UPDMAP
+    !insertmacro RadioButton ${Sec_UPDMAP_TTF}
+    !insertmacro RadioButton ${Sec_UPDMAP_Type1}
+  !insertmacro EndRadioButtons
+
 	SectionSetSize ${Sec_init} 0
+	SectionSetSize ${Sec_BreakTTC} 15000
 	
 	${If} ${SectionIsSelected} ${Sec_Type1}
 		SectionSetSize ${Sec_song} 35000
@@ -238,12 +319,6 @@ Function .onSelChange
 		SectionSetSize ${Sec_li} 0
 		SectionSetSize ${Sec_you} 0
 	${EndIf}
-
-	${If} ${SectionIsSelected} ${Sec_BreakTTC}
-		SectionGetSize ${Sec_song} $0
-		IntOp $0 $0 + 15000
-		SectionSetSize ${Sec_song} $0
-	${EndIf}
 FunctionEnd
 
 Function PageComponentsPre
@@ -258,14 +333,42 @@ Function PageComponentsPre
 	${Check_TTF} "you" "simyou.ttf"
 FunctionEnd
 
-LangString BreakTTC ${LANG_SIMPCHINESE} "从ttc中提取ttf"
-LangString BreakTTC ${LANG_ENGLISH} "Extract ttf from ttc"
+Function SectionInit
+	${If} ${SectionIsSelected} ${Sec_TFM}
+		StrCpy $TFM "1"
+	${Else}
+		StrCpy $TFM ""
+	${EndIf}
+	${If} ${SectionIsSelected} ${Sec_Type1}
+		StrCpy $Type1 "-Type1"
+	${Else}
+		StrCpy $Type1 ""
+	${EndIf}
+FunctionEnd
+
+LangString Desc_BreakTTC ${LANG_SIMPCHINESE} "由于dvips和pdftex不支持TTC格式的TrueType字库，需要从TTC文件中分离出单个的TTF文件。针对Windows XP/Vista/7中的宋体字库。"
+LangString Desc_BreakTTC ${LANG_ENGLISH} "Since dvips and pdftex do not support TrueType font in TTC format, it is need to extract single ttf from ttc file. For Song Ti (SimSun) in Windows XP/Vista/7."
+LangString Desc_TFM ${LANG_SIMPCHINESE} "生成TFM文件。TFM文件是TeX/LaTeX必须的基本字型文件。"
+LangString Desc_TFM ${LANG_ENGLISH} "Generate TFM files. TFM is the basic font file required by TeX/LaTeX"
+LangString Desc_Type1 ${LANG_SIMPCHINESE} "生成Type1字库。目前大多数程序都已经支持直接使用TrueType字库，因此建议不使用。"
+LangString Desc_Type1 ${LANG_ENGLISH} "Generate Type1 fonts. Since most programs support TrueType directly now, do not recommend."
+LangString Desc_UPDMAP ${LANG_SIMPCHINESE} "修改updmap.cfg，指定dvips/pdftex/dvipdfm缺省使用中文TrueType还是Type1字库。"
+LangString Desc_UPDMAP ${LANG_ENGLISH} "Modify updmap.cfg, set the default font type (TrueType or Type1) for dvips/pdftex/dvipdfm."
+LangString Desc_Fonts ${LANG_SIMPCHINESE} "系统中可供使用的中文字体"
+LangString Desc_Fonts ${LANG_ENGLISH} "Available Chinese fonts in the system"
+
+LangString BreakTTC ${LANG_SIMPCHINESE} "从TTC中提取TTF"
+LangString BreakTTC ${LANG_ENGLISH} "Extract TTF from TTC"
 LangString TFM ${LANG_SIMPCHINESE} "生成TFM文件"
 LangString TFM ${LANG_ENGLISH} "Generate TFM files"
 LangString Type1 ${LANG_SIMPCHINESE} "生成Type1字库"
 LangString Type1 ${LANG_ENGLISH} "Generate Type1 fonts"
 LangString UPDMAP ${LANG_SIMPCHINESE} "修改updmap.cfg"
 LangString UPDMAP ${LANG_ENGLISH} "Modify updmap.cfg"
+LangString UPDMAP_TTF ${LANG_SIMPCHINESE} "使用TrueType字库"
+LangString UPDMAP_TTF ${LANG_ENGLISH} "Use TrueType fonts"
+LangString UPDMAP_Type1 ${LANG_SIMPCHINESE} "使用Type1字库"
+LangString UPDMAP_Type1 ${LANG_ENGLISH} "Use Type1 fonts"
 LangString Fonts ${LANG_SIMPCHINESE} "可用字体"
 LangString Fonts ${LANG_ENGLISH} "Available Fonts"
 LangString SongTi ${LANG_SIMPCHINESE} "宋体"
