@@ -249,7 +249,7 @@ if($pfb)
 		"if not exist $destdir\\fonts\\tfm\\chinese\\$pre$familyname mkdir $destdir\\fonts\\tfm\\chinese\\$pre$familyname\n",
 		"ttf2tfm $ttfdir\\$ttfname -w $pre$familyname\@$Uenc\@.tfm\n",
 		"ttf2tfm $ttfdir\\$ttfname -s 0.167 $pre$familyname$slant\@$Uenc\@.tfm\n",
-		"move *.tfm $destdir\\fonts\\tfm\\chinese\\$pre$familyname\n\n"
+		"move *.tfm $destdir\\fonts\\tfm\\chinese\\$pre$familyname\n\n",
 		"for %%i in ($range) do (\n  for %%j in ($range2) do (\n    if exist $pre$familyname%%i%%j.enc ttf2pt1 -W0 -b $switches%%i%%j  %ttfile% $pre$familyname%%i%%j\n))\n",
 		"if not exist $destdir\\fonts\\afm\\chinese\\$pre$familyname mkdir $destdir\\fonts\\afm\\chinese\\$pre$familyname\n",
 		"if not exist $destdir\\fonts\\enc\\chinese\\$pre$familyname mkdir $destdir\\fonts\\enc\\chinese\\$pre$familyname\n",
