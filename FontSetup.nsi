@@ -153,6 +153,10 @@ Section -RemoveAll
 			${If} $9 == ""
 				${ExitDo}
 			${EndIf}
+			StrCpy $8 $9 15
+			${If} $8 == "# For CJK fonts"
+				${Continue}
+			${EndIf}
 			${StrStr} $8 $9 "cjk-"
 			${If} $8 != ""
 				StrCpy $7 $8 12
@@ -197,6 +201,7 @@ Section "$(UPDMAP_TTF)" Sec_UPDMAP_TTF
 	CreateDirectory "$R0"
 	FileOpen $0 "${UPDMAP_CFG}" a
 	FileSeek $0 0 END
+	FileWrite $0 "# For CJK fonts$\r$\n"
 	FileWrite $0 "Map cjk-ttf.map$\r$\n"
 	FileClose $0
 SectionEnd
@@ -205,6 +210,7 @@ Section /o "$(UPDMAP_Type1)" Sec_UPDMAP_Type1
 	CreateDirectory "$R0"
 	FileOpen $0 "${UPDMAP_CFG}" a
 	FileSeek $0 0 END
+	FileWrite $0 "# For CJK fonts$\r$\n"
 	FileWrite $0 "Map cjk-song.map$\r$\n"
 	FileWrite $0 "Map cjk-fs.map$\r$\n"
 	FileWrite $0 "Map cjk-hei.map$\r$\n"
