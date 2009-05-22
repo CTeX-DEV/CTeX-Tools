@@ -5,7 +5,7 @@
 
 ${StrStr}
 
-!define APP_NAME    "CTeX Font Setup"
+!define APP_NAME    "CTeX FontSetup"
 !define APP_COMPANY "CTEX.ORG"
 !define APP_COPYRIGHT "Copyright (C) 2009 ${APP_COMPANY}"
 !define APP_VERSION "1.1"
