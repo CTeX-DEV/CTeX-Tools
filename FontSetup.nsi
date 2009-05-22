@@ -74,8 +74,8 @@ Var TTF_you
 		${GetParent} "$TTF_${CJK_NAME}" $0
 		${GetFileName} "$TTF_${CJK_NAME}" $1
 		SetDetailsPrint none
-		ExecWait "${FontsGen} -ttfdir=$0 -destdir=Fonts $Type1 -encoding=UTF8 -ttf=$1 -CJKname=${CJK_NAME}"
-		ExecWait "${FontsGen} -ttfdir=$0 -destdir=Fonts $Type1 -encoding=GBK  -ttf=$1 -CJKname=${CJK_NAME}"
+		nsExec::Exec "${FontsGen} -ttfdir=$0 -destdir=Fonts $Type1 -encoding=UTF8 -ttf=$1 -CJKname=${CJK_NAME}"
+		nsExec::Exec "${FontsGen} -ttfdir=$0 -destdir=Fonts $Type1 -encoding=GBK  -ttf=$1 -CJKname=${CJK_NAME}"
 		SetDetailsPrint lastused
 	${EndIf}
 !macroend
@@ -129,7 +129,7 @@ Section "$(BreakTTC)" Sec_BreakTTC
 		StrCpy $9 $TTF_song
 		StrCpy $TTF_song "${TTF_FONTS}\simsun.ttf"
 		${IfNot} ${FileExists} $TTF_song
-			ExecWait 'BREAKTTC.exe "$9"'
+			nsExec::Exec 'BREAKTTC.exe "$9"'
 			CreateDirectory "${TTF_FONTS}"
 			CopyFiles /SILENT "FONT00.TTF" "$TTF_song"
 			Delete "*.TTF"
@@ -259,8 +259,8 @@ Section -Finish
 	SetOutPath $INSTDIR
 	RMDir /r $TempDir
 	${If} $CTEXSETUP == ""
-		ExecWait "initexmf.exe --update-fndb --quiet"
-		ExecWait "initexmf.exe --mkmaps --quiet"
+		nsExec::Exec "initexmf.exe --update-fndb --quiet"
+		nsExec::Exec "initexmf.exe --mkmaps --quiet"
 	${EndIf}
 SectionEnd
 
