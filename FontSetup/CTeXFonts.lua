@@ -13,7 +13,7 @@ settings = {
 	encoding = "GBK",
 	cjkname = "song",
 	cjkmap = "cjk",
-	ttfdir = os.getenv("SYSTEMROOT") .. [[\Fonts]],
+	ttfdir = (os.getenv("SYSTEMROOT") or ".") .. [[\Fonts]],
 	destdir = [[.\Fonts]],
 	-- other settings
 	slant = "sl",
@@ -70,62 +70,63 @@ settings.big5 = {
 	fddir = "Bg5",
 }
 
--- expand string by variables in table (default to settings)
-function expand(s, t)
-	t = t or settings
-	return (string.gsub(s, "%$(%w+)", t))
-end
-
 -- print verbose information
 function printverbose(...)
 	if settings.verbose then io.write(...) end
 end
 
--- os functions
-if string.match(os.getenv("OS"), "^Windows") then
-	do
-		local open = io.open
-		io.open = function(f, m) return open(expand(f), m) end
-	end
+-- expand the variables in string
+function expand(s, t)
+	return (string.gsub(s, "%$(%w+)", t or settings))
+end
+expand_path = expand
+
+-- replace default io.open
+do
+	local open = io.open
+	io.open = function(f, m) return open(expand_path(f), m) end
+end
+
+-- execute command and hide console output
+function exec(c)
+	local f = io.popen(expand_path(c))
+	local l = f:read("*a")
+	f:close()
+	return l
+end
+
+-- os dependent settings
+if string.match(os.getenv("OS") or "", "^Windows") then
+	-- test file or dir exist
 	function file_exist(f)
-		return os.execute([[if exist "]] .. expand(f) .. [[" exit 1]]) == 1
+		return os.execute([[if exist "]] .. expand_path(f) .. [[" exit 1]]) == 1
 	end
-	function exec(command)
-		local f = io.popen(expand(command))
-		local l = f:read("*a")
-		f:close()
-		return l
-	end
+	-- make dir
 	function mkdir(d)
 		exec([[if not exist "]] .. d .. [[" mkdir "]] .. d .. [["]])
 	end
-	function move(src, dest)
-		exec([[move /Y "]] .. src .. [[" "]] .. dest .. [["]])
+	-- move files
+	function move(srcdir, srcfile, dest)
+		exec([[move /Y "]] .. srcdir .. [["\]] .. srcfile .. [[ "]] .. dest .. [["]])
 	end
 else
-	do
-		local open = io.open
-		io.open = function(f, m) 
-			f = string.gsub(f, "\\", "/")
-			return open(expand(f), m)
-		end
+	-- use texlive settings
+	settings.texlive = true
+	-- convert path to unix style
+	function expand_path(s)
+		return (string.gsub(expand(s), "\\", "/"))
 	end
+	-- test file or dir exist
 	function file_exist(f)
-		f = string.gsub(f, "\\", "/")
-		return os.execute([[ [ -e "]] .. expand(f) .. [[" ] && exit 1]]) == 1
+		return os.execute([=[ [ -e "]=] .. expand_path(f) .. [=[" ] ]=]) == 0
 	end
-	function exec(c)
-		c = string.gsub(c, "\\", "/")
-		local f = io.popen(expand(c))
-		local l = f:read("*a")
-		f:close()
-		return l
-	end
+	-- make dir
 	function mkdir(d)
-		exec([[ [ -e "]] .. d .. [[" ] || mkdir "]] .. d .. [["]])
+		exec([=[ [ -e "]=] .. d .. [=[" ] || mkdir -p "]=] .. d .. [=["]=])
 	end
-	function move(src, dest)
-		exec([[mv -f "]] .. src .. [[" "]] .. dest .. [["]])
+	-- move files
+	function move(srcdir, srcfile, dest)
+		exec([[mv -f "]] .. srcdir .. [["\]] ..srcfile .. [[ "]] .. dest .. [["]])
 	end
 end
 
@@ -195,7 +196,7 @@ Avaliable options:
   [-version|-v]           Version number and copyright infomation;
   [-help|-h]              Show this help text.
 ]]
-	io.write(expand(s))
+	io.write(expand_path(s))
 end
 
 -- all valid options
@@ -276,7 +277,7 @@ else
 end
 local f = io.open([[$ttfdir\$ttf]], "r")
 if not f then
-	io.write("Error: Can not open TrueType file ", expand([[$ttfdir\$ttf]]), "\n")
+	io.write("Error: Can not open TrueType file ", expand_path([[$ttfdir\$ttf]]), "\n")
 	return
 else
 	io.close(f)
@@ -348,7 +349,7 @@ printverbose("...")
 exec [[ttf2tfm "$ttfdir\$ttf" -q -f 0 -s 0.167 "$destdir\$prefix$cjkname$slant@$uenc@.tfm"]]
 printverbose("...")
 mkdir [[$destdir\$tfmdir\$prefix$cjkname]]
-move([[$destdir\*.tfm]], [[$destdir\$tfmdir\$prefix$cjkname]])
+move([[$destdir]], [[*.tfm]], [[$destdir\$tfmdir\$prefix$cjkname]])
 printverbose(" OK\n")
 
 -- generate type1 files
@@ -370,9 +371,9 @@ if settings.type1 then
 	mkdir [[$destdir\$afmdir\$prefix$cjkname]]
 	mkdir [[$destdir\$encdir\$prefix$cjkname]]
 	mkdir [[$destdir\$type1dir\$prefix$cjkname]]
-	move([[$destdir\*.afm]], [[$destdir\$afmdir\$prefix$cjkname]])
-	move([[$destdir\*.enc]], [[$destdir\$encdir\$prefix$cjkname]])
-	move([[$destdir\*.pfb]], [[$destdir\$type1dir\$prefix$cjkname]])
+	move([[$destdir]], [[*.afm]], [[$destdir\$afmdir\$prefix$cjkname]])
+	move([[$destdir]], [[*.enc]], [[$destdir\$encdir\$prefix$cjkname]])
+	move([[$destdir]], [[*.pfb]], [[$destdir\$type1dir\$prefix$cjkname]])
 	printverbose(" OK\n")
 end
 
