@@ -8,7 +8,7 @@ ${StrStr}
 !define APP_NAME    "CTeX FontSetup"
 !define APP_COMPANY "CTEX.ORG"
 !define APP_COPYRIGHT "Copyright (C) 2009 ${APP_COMPANY}"
-!define APP_VERSION "1.1"
+!define APP_VERSION "1.2"
 !define APP_BUILD "${APP_VERSION}.0.0"
 
 Name "${APP_NAME}"
@@ -34,7 +34,7 @@ SetCompressor /SOLID LZMA
 
 !define TTF_FONTS "$INSTDIR\fonts\truetype\chinese"
 !define UPDMAP_CFG "$INSTDIR\miktex\config\updmap.cfg"
-!define FontsGen "$TempDir\FontsGen.exe"
+!define CTeXFonts "$TempDir\CTeXFonts.exe"
 
 Var CTEXSETUP
 Var TFM
@@ -74,44 +74,12 @@ Var TTF_you
 		${GetParent} "$TTF_${CJK_NAME}" $0
 		${GetFileName} "$TTF_${CJK_NAME}" $1
 		SetDetailsPrint none
-		nsExec::Exec "${FontsGen} -ttfdir=$0 -destdir=Fonts $Type1 -encoding=UTF8 -ttf=$1 -CJKname=${CJK_NAME}"
-		nsExec::Exec "${FontsGen} -ttfdir=$0 -destdir=Fonts $Type1 -encoding=GBK  -ttf=$1 -CJKname=${CJK_NAME}"
-		SetDetailsPrint lastused
+		nsExec::Exec "${CTeXFonts} -ttfdir=$0 -destdir=$INSTDIR $Type1 -encoding=UTF8 -ttf=$1 -CJKname=${CJK_NAME}"
+		nsExec::Exec "${CTeXFonts} -ttfdir=$0 -destdir=$INSTDIR $Type1 -encoding=GBK  -ttf=$1 -CJKname=${CJK_NAME}"
+		SetDetailsPrint both
 	${EndIf}
 !macroend
 !define Make_Font "!insertmacro _Make_Font"
-
-!macro _Install_FontFiles TYPE CJKNAME
-	CreateDirectory "$INSTDIR\fonts\${TYPE}\chinese"
-	CopyFiles /SILENT "$TempDir\Fonts\fonts\${TYPE}\chinese\uni${CJK_NAME}" "$INSTDIR\fonts\${TYPE}\chinese"
-	CopyFiles /SILENT "$TempDir\Fonts\fonts\${TYPE}\chinese\gbk${CJK_NAME}" "$INSTDIR\fonts\${TYPE}\chinese"
-!macroend
-!define Install_FontFiles "!insertmacro _Install_FontFiles"
-
-!macro _Install_TFM_Font CJK_NAME
-	${Install_FontFiles} "tfm" ${CJK_NAME}
-!macroend
-!define Install_TFM_Font "!insertmacro _Install_TFM_Font"
-
-!macro _Install_Type1_Font CJK_NAME
-	${Install_FontFiles} "afm" ${CJK_NAME}
-	${Install_FontFiles} "enc" ${CJK_NAME}
-	${Install_FontFiles} "type1" ${CJK_NAME}
-	CreateDirectory "$INSTDIR\fonts\map\chinese"
-	CopyFiles /SILENT "$TempDir\Fonts\fonts\map\cjk-${CJK_NAME}.map" "$INSTDIR\fonts\map\chinese\cjk-${CJK_NAME}.map"
-!macroend
-!define Install_Type1_Font "!insertmacro _Install_Type1_Font"
-
-!macro _Install_Font CJK_NAME
-	${If} $TFM != ""
-		${Install_TFM_Font} ${CJK_NAME}
-	${EndIf}
-	${If} $Type1 != ""
-		${Install_Type1_Font} ${CJK_NAME}
-	${EndIf}
-	RMDir /r "$TempDir\Fonts"
-!macroend
-!define Install_Font "!insertmacro _Install_Font"
 
 Section -Init Sec_init
 	Call SectionInit
@@ -120,7 +88,15 @@ Section -Init Sec_init
 	Delete $TempDir
 	CreateDirectory $TempDir
 	SetOutPath $TempDir
-	File "FontSetup\*.*"
+	File FontSetup\BREAKTTC.EXE
+	File FontSetup\CTeXFonts.exe
+	File FontSetup\ttf2tfm.exe
+	File FontSetup\ttf2pt1.exe
+	File FontSetup\freetype6.dll
+	File FontSetup\zlib1.dll
+	File FontSetup\UGBK.sfd
+	File FontSetup\Unicode.sfd
+	File FontSetup\cugbk0.map
 SectionEnd
 
 Section "$(BreakTTC)" Sec_BreakTTC
@@ -163,24 +139,15 @@ Section -RemoveAll
 				${If} $7 == "cjk-song.map"
 					${Continue}
 				${EndIf}
-				StrCpy $7 $8 10
-				${If} $7 == "cjk-fs.map"
-					${Continue}
-				${EndIf}
 				StrCpy $7 $8 11
 				${If} $7 == "cjk-hei.map"
-					${Continue}
-				${EndIf}
-				StrCpy $7 $8 11
-				${If} $7 == "cjk-kai.map"
+				${OrIf} $7 == "cjk-kai.map"
+				${OrIf} $7 == "cjk-you.map"
 					${Continue}
 				${EndIf}
 				StrCpy $7 $8 10
-				${If} $7 == "cjk-li.map"
-					${Continue}
-				${EndIf}
-				StrCpy $7 $8 11
-				${If} $7 == "cjk-you.map"
+				${If} $7 == "cjk-fs.map"
+				${OrIf} $7 == "cjk-li.map"
 					${Continue}
 				${EndIf}
 				StrCpy $7 $8 11
@@ -225,32 +192,26 @@ SectionGroup "$(Fonts)" Sec_Fonts
 
 Section "$(SongTi)" Sec_song
 	${Make_Font} "song"
-	${Install_Font} "song"
 SectionEnd
 
 Section "$(FangSong)" Sec_fs
 	${Make_Font} "fs"
-	${Install_Font} "fs"
 SectionEnd
 
 Section "$(HeiTi)" Sec_hei
 	${Make_Font} "hei"
-	${Install_Font} "hei"
 SectionEnd
 
 Section "$(KaiTi)" Sec_kai
 	${Make_Font} "kai"
-	${Install_Font} "kai"
 SectionEnd
 
 Section "$(LiShu)" Sec_li
 	${Make_Font} "li"
-	${Install_Font} "li"
 SectionEnd
 
 Section "$(YouYuan)" Sec_you
 	${Make_Font} "you"
-	${Install_Font} "you"
 SectionEnd
 
 SectionGroupEnd
@@ -320,6 +281,7 @@ Function .onSelChange
 	SectionSetSize ${Sec_BreakTTC} 15000
 	
 	${If} ${SectionIsSelected} ${Sec_Type1}
+		!insertmacro SelectSection ${Sec_TFM}
 		SectionSetSize ${Sec_song} 35000
 		SectionSetSize ${Sec_fs} 35000
 		SectionSetSize ${Sec_hei} 35000
@@ -364,7 +326,7 @@ FunctionEnd
 LangString Desc_BreakTTC ${LANG_SIMPCHINESE} "由于dvips和pdftex不支持TTC格式的TrueType字库，需要从TTC文件中分离出单个的TTF文件。针对Windows XP/Vista/7中的宋体字库。"
 LangString Desc_BreakTTC ${LANG_ENGLISH} "Since dvips and pdftex do not support TrueType font in TTC format, it is need to extract single ttf from ttc file. For Song Ti (SimSun) in Windows XP/Vista/7."
 LangString Desc_TFM ${LANG_SIMPCHINESE} "生成TFM文件。TFM文件是TeX/LaTeX必须的基本字型文件。"
-LangString Desc_TFM ${LANG_ENGLISH} "Generate TFM files. TFM is the basic font file required by TeX/LaTeX"
+LangString Desc_TFM ${LANG_ENGLISH} "Generate TFM files. TFM is the basic font file required by TeX/LaTeX."
 LangString Desc_Type1 ${LANG_SIMPCHINESE} "生成Type1字库。目前大多数程序都已经支持直接使用TrueType字库，因此建议不使用。"
 LangString Desc_Type1 ${LANG_ENGLISH} "Generate Type1 fonts. Since most programs support TrueType directly now, do not recommend."
 LangString Desc_UPDMAP ${LANG_SIMPCHINESE} "修改updmap.cfg，指定dvips/pdftex/dvipdfm缺省使用中文TrueType还是Type1字库。"
