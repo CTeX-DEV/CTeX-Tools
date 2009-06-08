@@ -362,7 +362,7 @@ if settings.type1 then
 			settings.range2 = ranges[j]
 			if file_exist(tfmfile) then
 				printverbose(".")
-				exec [[ttf2pt1 -W0 -b -GFAE -Ohub -pft $switches$range1$range2 "$ttfdir\$ttf" "$destdir\$prefix$cjkname$range1$range2"]]
+				exec [[ttf2pt1 -W0 -b -GFAE -pft $switches$range1$range2 "$ttfdir\$ttf" "$destdir\$prefix$cjkname$range1$range2"]]
 			end
 		end
 	end
@@ -481,7 +481,7 @@ if settings.type1 then
 				settings.range2 = ranges[j]
 				if file_exist([[$destdir\$type1dir\$prefix$cjkname\$prefix$cjkname$range1$range2.pfb]]) then
 					f:write(expand('$prefix$cjkname$range1$range2 $psname-$range1$range2 < $prefix$cjkname$range1$range2.pfb\n'))
-					f:write(expand('$prefix$cjkname$slant$range1$range2 $psname-$range1$range2 " .167 SlantFont " < $prefix$cjkname$slant$range1$range2.pfb\n'))
+					f:write(expand('$prefix$cjkname$slant$range1$range2 $psname-$range1$range2 " .167 SlantFont " < $prefix$cjkname$range1$range2.pfb\n'))
 				end
 			end
 		end
