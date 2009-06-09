@@ -46,7 +46,6 @@ settings.gbk = {
 	dim = {10, 10},
 	uenc = "UGBK",
 	fdpre = "C19",
-	cjknormal = "",
 	fddir = "GB",
 }
 settings.utf8 = {
@@ -56,7 +55,6 @@ settings.utf8 = {
 	dim = {16, 16},
 	uenc = "Unicode",
 	fdpre = "C70",
-	cjknormal = [[\CJKnormal]],
 	fddir = "UTF8",
 }
 settings.big5 = {
@@ -66,7 +64,6 @@ settings.big5 = {
 	dim = {6, 10},
 	uenc = "UBig5",
 	fdpre = "C00",
-	cjknormal = "",
 	fddir = "Bg5",
 }
 
@@ -509,11 +506,11 @@ fdfile = [[
 
 \DeclareFontFamily{$fdpre}{$cjkname}{\hyphenchar \font\m@ne}
 
-\DeclareFontShape{$fdpre}{$cjkname}{m}{n}{<-> CJK * $prefix$cjkname}{$cjknormal}
+\DeclareFontShape{$fdpre}{$cjkname}{m}{n}{<-> CJK * $prefix$cjkname}{\CJKnormal}
 \DeclareFontShape{$fdpre}{$cjkname}{bx}{n}{<-> CJKb * $prefix$cjkname}{\CJKbold}
-\DeclareFontShape{$fdpre}{$cjkname}{m}{it}{<-> CJK * $prefix$cjkname}{$cjknormal}
+\DeclareFontShape{$fdpre}{$cjkname}{m}{it}{<-> CJK * $prefix$cjkname}{\CJKnormal}
 \DeclareFontShape{$fdpre}{$cjkname}{bx}{it}{<-> CJKb * $prefix$cjkname}{\CJKbold}
-\DeclareFontShape{$fdpre}{$cjkname}{m}{sl}{<-> CJK * $prefix$cjkname}{$cjknormal}
+\DeclareFontShape{$fdpre}{$cjkname}{m}{sl}{<-> CJK * $prefix$cjkname}{\CJKnormal}
 \DeclareFontShape{$fdpre}{$cjkname}{bx}{sl}{<-> CJKb * $prefix$cjkname}{\CJKbold}
 
 \endinput
