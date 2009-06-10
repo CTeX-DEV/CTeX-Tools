@@ -220,7 +220,9 @@ Section -Finish
 	SetOutPath $INSTDIR
 	RMDir /r $TempDir
 	${If} $CTEXSETUP == ""
+		DetailPrint "Update MiKTeX file name database"
 		nsExec::Exec "initexmf.exe --update-fndb --quiet"
+		DetailPrint "Update MiKTeX updmap database"
 		nsExec::Exec "initexmf.exe --mkmaps --quiet"
 	${EndIf}
 SectionEnd
