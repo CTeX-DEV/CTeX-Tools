@@ -508,10 +508,10 @@ fdfile = [[
 
 \DeclareFontShape{$fdpre}{$cjkname}{m}{n}{<-> CJK * $prefix$cjkname}{\CJKnormal}
 \DeclareFontShape{$fdpre}{$cjkname}{bx}{n}{<-> CJKb * $prefix$cjkname}{\CJKbold}
-\DeclareFontShape{$fdpre}{$cjkname}{m}{it}{<-> CJK * $prefix$cjkname}{\CJKnormal}
-\DeclareFontShape{$fdpre}{$cjkname}{bx}{it}{<-> CJKb * $prefix$cjkname}{\CJKbold}
-\DeclareFontShape{$fdpre}{$cjkname}{m}{sl}{<-> CJK * $prefix$cjkname}{\CJKnormal}
-\DeclareFontShape{$fdpre}{$cjkname}{bx}{sl}{<-> CJKb * $prefix$cjkname}{\CJKbold}
+\DeclareFontShape{$fdpre}{$cjkname}{m}{it}{<-> CJK * $prefix$cjkname$slant}{\CJKnormal}
+\DeclareFontShape{$fdpre}{$cjkname}{bx}{it}{<-> CJKb * $prefix$cjkname$slant}{\CJKbold}
+\DeclareFontShape{$fdpre}{$cjkname}{m}{sl}{<-> CJK * $prefix$cjkname$slant}{\CJKnormal}
+\DeclareFontShape{$fdpre}{$cjkname}{bx}{sl}{<-> CJKb * $prefix$cjkname$slant}{\CJKbold}
 
 \endinput
 ]]

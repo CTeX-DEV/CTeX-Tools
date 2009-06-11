@@ -8,8 +8,8 @@ ${StrStr}
 !define APP_NAME    "CTeX FontSetup"
 !define APP_COMPANY "CTEX.ORG"
 !define APP_COPYRIGHT "Copyright (C) 2009 ${APP_COMPANY}"
-!define APP_VERSION "1.2"
-!define APP_BUILD "${APP_VERSION}.0.0"
+!define APP_VERSION "1.2.1"
+!define APP_BUILD "${APP_VERSION}.0"
 
 Name "${APP_NAME}"
 BrandingText "${APP_NAME} ${APP_VERSION} (C) CTEX.ORG"
