@@ -8,7 +8,7 @@ ${StrStr}
 !define APP_NAME    "CTeX FontSetup"
 !define APP_COMPANY "CTEX.ORG"
 !define APP_COPYRIGHT "Copyright (C) 2009 ${APP_COMPANY}"
-!define APP_VERSION "1.2.1"
+!define APP_VERSION "1.2.2"
 !define APP_BUILD "${APP_VERSION}.0"
 
 Name "${APP_NAME}"
@@ -88,7 +88,7 @@ Section -Init Sec_init
 	Delete $TempDir
 	CreateDirectory $TempDir
 	SetOutPath $TempDir
-	File FontSetup\BREAKTTC.EXE
+	File FontSetup\ttc2ttf.exe
 	File FontSetup\CTeXFonts.exe
 	File FontSetup\ttf2tfm.exe
 	File FontSetup\ttf2pt1.exe
@@ -99,16 +99,16 @@ Section -Init Sec_init
 	File FontSetup\cugbk0.map
 SectionEnd
 
-Section "$(BreakTTC)" Sec_BreakTTC
+Section "$(TTC2TTF)" Sec_TTC2TTF
 	StrCpy $0 $TTF_song 3 -3
 	${If} $0 == "ttc"
 		StrCpy $9 $TTF_song
 		StrCpy $TTF_song "${TTF_FONTS}\simsun.ttf"
 		${IfNot} ${FileExists} $TTF_song
-			nsExec::Exec 'BREAKTTC.exe "$9"'
+			nsExec::Exec 'ttc2ttf.exe "$9"'
 			CreateDirectory "${TTF_FONTS}"
-			CopyFiles /SILENT "FONT00.TTF" "$TTF_song"
-			Delete "*.TTF"
+			CopyFiles /SILENT "simsun.ttf" "$TTF_song"
+			Delete "*.ttf"
 		${EndIf}
 	${EndIf}
 SectionEnd
@@ -229,7 +229,7 @@ SectionEnd
 
 ; Modern install component descriptions
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-	!insertmacro MUI_DESCRIPTION_TEXT ${Sec_BreakTTC} $(Desc_BreakTTC)
+	!insertmacro MUI_DESCRIPTION_TEXT ${Sec_TTC2TTF} $(Desc_TTC2TTF)
 	!insertmacro MUI_DESCRIPTION_TEXT ${Sec_TFM} $(Desc_TFM)
 	!insertmacro MUI_DESCRIPTION_TEXT ${Sec_Type1} $(Desc_Type1)
 	!insertmacro MUI_DESCRIPTION_TEXT ${Sec_UPDMAP} $(Desc_UPDMAP)
@@ -280,7 +280,7 @@ Function .onSelChange
   !insertmacro EndRadioButtons
 
 	SectionSetSize ${Sec_init} 0
-	SectionSetSize ${Sec_BreakTTC} 15000
+	SectionSetSize ${Sec_TTC2TTF} 15000
 	
 	${If} ${SectionIsSelected} ${Sec_Type1}
 		!insertmacro SelectSection ${Sec_TFM}
@@ -325,8 +325,8 @@ Function SectionInit
 	${EndIf}
 FunctionEnd
 
-LangString Desc_BreakTTC ${LANG_SIMPCHINESE} "由于dvips和pdftex不支持TTC格式的TrueType字库，需要从TTC文件中分离出单个的TTF文件。针对Windows XP/Vista/7中的宋体字库。"
-LangString Desc_BreakTTC ${LANG_ENGLISH} "Since dvips and pdftex do not support TrueType font in TTC format, it is need to extract single ttf from ttc file. For Song Ti (SimSun) in Windows XP/Vista/7."
+LangString Desc_TTC2TTF ${LANG_SIMPCHINESE} "由于dvips和pdftex不支持TTC格式的TrueType字库，需要从TTC文件中分离出单个的TTF文件。针对Windows XP/Vista/7中的宋体字库。"
+LangString Desc_TTC2TTF ${LANG_ENGLISH} "Since dvips and pdftex do not support TrueType font in TTC format, it is need to extract single ttf from ttc file. For Song Ti (SimSun) in Windows XP/Vista/7."
 LangString Desc_TFM ${LANG_SIMPCHINESE} "生成TFM文件。TFM文件是TeX/LaTeX必须的基本字型文件。"
 LangString Desc_TFM ${LANG_ENGLISH} "Generate TFM files. TFM is the basic font file required by TeX/LaTeX."
 LangString Desc_Type1 ${LANG_SIMPCHINESE} "生成Type1字库。目前大多数程序都已经支持直接使用TrueType字库，因此建议不使用。"
@@ -336,8 +336,8 @@ LangString Desc_UPDMAP ${LANG_ENGLISH} "Modify updmap.cfg, set the default font 
 LangString Desc_Fonts ${LANG_SIMPCHINESE} "系统中可供使用的中文字体"
 LangString Desc_Fonts ${LANG_ENGLISH} "Available Chinese fonts in the system"
 
-LangString BreakTTC ${LANG_SIMPCHINESE} "从TTC中提取TTF"
-LangString BreakTTC ${LANG_ENGLISH} "Extract TTF from TTC"
+LangString TTC2TTF ${LANG_SIMPCHINESE} "从TTC中提取TTF"
+LangString TTC2TTF ${LANG_ENGLISH} "Extract TTF from TTC"
 LangString TFM ${LANG_SIMPCHINESE} "生成TFM文件"
 LangString TFM ${LANG_ENGLISH} "Generate TFM files"
 LangString Type1 ${LANG_SIMPCHINESE} "生成Type1字库"
