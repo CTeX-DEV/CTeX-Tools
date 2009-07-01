@@ -8,7 +8,7 @@ ${StrStr}
 !define APP_NAME    "CTeX FontSetup"
 !define APP_COMPANY "CTEX.ORG"
 !define APP_COPYRIGHT "Copyright (C) 2009 ${APP_COMPANY}"
-!define APP_VERSION "1.2.2"
+!define APP_VERSION "1.2.3"
 !define APP_BUILD "${APP_VERSION}.0"
 
 Name "${APP_NAME}"
@@ -74,8 +74,8 @@ Var TTF_you
 		${GetParent} "$TTF_${CJK_NAME}" $0
 		${GetFileName} "$TTF_${CJK_NAME}" $1
 		SetDetailsPrint none
-		nsExec::Exec "${CTeXFonts} -ttfdir=$0 -destdir=$INSTDIR $Type1 -encoding=UTF8 -ttf=$1 -CJKname=${CJK_NAME}"
-		nsExec::Exec "${CTeXFonts} -ttfdir=$0 -destdir=$INSTDIR $Type1 -encoding=GBK  -ttf=$1 -CJKname=${CJK_NAME}"
+		nsExec::Exec '"${CTeXFonts}" -ttfdir="$0" -destdir="$INSTDIR" $Type1 -encoding=UTF8 -ttf=$1 -CJKname=${CJK_NAME}'
+		nsExec::Exec '"${CTeXFonts}" -ttfdir="$0" -destdir="$INSTDIR" $Type1 -encoding=GBK  -ttf=$1 -CJKname=${CJK_NAME}'
 		SetDetailsPrint both
 	${EndIf}
 !macroend
