@@ -21,6 +21,14 @@ ShowInstDetails show
 !define INI_Sec "CTeX"
 !define INI_Key "BuildNumber"
 
+!macro _Build NAME
+	nsExec::ExecToLog '"${Make}" ${NAME}'
+	Pop $0
+	${If} $0 != 0
+		Abort
+	${EndIf}
+!macroend
+!define Build "!insertmacro _Build"
 
 Var Build_Number
 
@@ -30,19 +38,19 @@ Section
 SectionEnd
 
 Section "Build Repair" Sec_Repair
-	ExecWait "${Make} CTeX_Repair.nsi"
+	${Build} "CTeX_Repair.nsi"
 SectionEnd
 
 Section "Build Update" Sec_Update
-	ExecWait "${Make} CTeX_Update.nsi"
+	${Build} "CTeX_Update.nsi"
 SectionEnd
 
 Section "Build Basic Version" Sec_Basic
-	ExecWait "${Make} CTeX_Setup.nsi"
+	${Build} "CTeX_Setup.nsi"
 SectionEnd
 
 Section /o "Build Full Version" Sec_Full
-	ExecWait "${Make} CTeX_Full.nsi"
+	${Build} "CTeX_Full.nsi"
 SectionEnd
 
 Section "Increment build number"
