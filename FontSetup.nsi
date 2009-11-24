@@ -8,7 +8,7 @@ ${StrStr}
 !define APP_NAME    "CTeX FontSetup"
 !define APP_COMPANY "CTEX.ORG"
 !define APP_COPYRIGHT "Copyright (C) 2009 ${APP_COMPANY}"
-!define APP_VERSION "1.2.3"
+!define APP_VERSION "1.2.4"
 !define APP_BUILD "${APP_VERSION}.0"
 
 Name "${APP_NAME}"
@@ -221,9 +221,10 @@ Section -Finish
 	RMDir /r $TempDir
 	${If} $CTEXSETUP == ""
 		DetailPrint "Update MiKTeX file name database"
+		nsExec::Exec "initexmf.exe --update-fndb --quiet --admin"
 		nsExec::Exec "initexmf.exe --update-fndb --quiet"
 		DetailPrint "Update MiKTeX updmap database"
-		nsExec::Exec "initexmf.exe --mkmaps --quiet"
+		nsExec::Exec "initexmf.exe --mkmaps --quiet --admin"
 	${EndIf}
 SectionEnd
 
