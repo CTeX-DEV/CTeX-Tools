@@ -1,6 +1,7 @@
 
 !include "LogicLib.nsh"
 !include "Sections.nsh"
+!include "FileFunc.nsh"
 
 Name "CTeX Build"
 OutFile "CTeX_Build.exe"
@@ -31,6 +32,7 @@ ShowInstDetails show
 !define Build "!insertmacro _Build"
 
 Var Build_Number
+Var BUILD_ALL
 
 Section
 	Call ReadBuildNumber
@@ -60,6 +62,18 @@ Section "Increment build number"
 		Call WriteBuildNumber
 	${EndIf}
 SectionEnd
+
+Function .onInit
+	${GetParameters} $R0
+	${GetOptions} $R0 "/BUILD_ALL=" $BUILD_ALL
+	
+	${If} $BUILD_ALL != ""
+		!insertmacro SelectSection ${Sec_Repair}
+		!insertmacro SelectSection ${Sec_Update}
+		!insertmacro SelectSection ${Sec_Basic}
+		!insertmacro SelectSection ${Sec_Full}
+	${EndIf}
+FunctionEnd
 
 Function .onSelChange
 	${If} ${SectionIsSelected} ${Sec_Update}
