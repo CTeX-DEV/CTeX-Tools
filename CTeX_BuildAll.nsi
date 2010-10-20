@@ -19,7 +19,7 @@ Var Options
 
 !macro _Build NAME
 	DetailPrint 'Running ${NAME}\CTeX_Build.exe $Options'
-	nsExec::ExecToLog '${NAME}\CTeX_Build.exe $Options'
+	nsExec::ExecToLog '$EXEDIR\${NAME}\CTeX_Build.exe $Options'
 	Pop $0
 	${If} $0 != 0
 		DetailPrint "Return code: $0"
