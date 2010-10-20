@@ -40,19 +40,19 @@ Section
 SectionEnd
 
 Section "Build Repair" Sec_Repair
-	${Build} "CTeX_Repair.nsi"
+	${Build} "$EXEDIR\CTeX_Repair.nsi"
 SectionEnd
 
 Section "Build Update" Sec_Update
-	${Build} "CTeX_Update.nsi"
+	${Build} "$EXEDIR\CTeX_Update.nsi"
 SectionEnd
 
 Section "Build Basic Version" Sec_Basic
-	${Build} "CTeX_Setup.nsi"
+	${Build} "$EXEDIR\CTeX_Setup.nsi"
 SectionEnd
 
 Section /o "Build Full Version" Sec_Full
-	${Build} "CTeX_Full.nsi"
+	${Build} "$EXEDIR\CTeX_Full.nsi"
 SectionEnd
 
 Section "Increment build number"
