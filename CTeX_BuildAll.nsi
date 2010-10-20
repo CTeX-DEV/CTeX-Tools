@@ -29,7 +29,7 @@ Var Options
 !macroend
 !define Build "!insertmacro _Build"
 
-SectionGroup /e Options
+SectionGroup /e "Options"
 
 Section "Silent"
 	StrCpy $Options "$Options /S"
@@ -41,6 +41,8 @@ SectionEnd
 
 SectionGroupEnd
 
+SectionGroup /e "Builds"
+
 Section "CTeX 2.8"
 	${Build} "CTeX_2.8"
 SectionEnd
@@ -48,3 +50,5 @@ SectionEnd
 Section "CTeX 2.9"
 	${Build} "CTeX_2.9"
 SectionEnd
+
+SectionGroupEnd
