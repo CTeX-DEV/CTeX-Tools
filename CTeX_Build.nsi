@@ -93,7 +93,7 @@ Function ReadBuildNumber
 	${EndIf}
 FunctionEnd
 
-Function UpdateBuildNumber ;FIXME THIS DOES NOT REALLY WORK. SEEMS IT IS NOT EXECUTED
+Function UpdateBuildNumber
 	IntOp $Build_Number $Build_Number + 1 
 	WriteINIStr "${INI_File}" "${INI_Sec}" "${INI_Key}" $Build_Number
 FunctionEnd
