@@ -5,6 +5,7 @@
 
 Name "CTeX Build"
 OutFile "CTeX_Build.exe"
+RequestExecutionLevel user
 
 ShowInstDetails show
 
@@ -17,8 +18,10 @@ ShowInstDetails show
 !insertmacro MUI_RESERVEFILE_LANGDLL
 
 
-!define Make "$PROGRAMFILES\NSIS\makensis.exe"
-!define INI_File "$EXEDIR\CTeX_Build.ini"
+!define PROGRAM "$PROGRAMFILES\NSIS\makensis.exe"
+!define OPTIONS "/INPUTCHARSET UTF8 /OUTPUTCHARSET UTF8 /V4"
+!define Make "${PROGRAM} ${OPTIONS}"
+!define INI_File "$EXEDIR\libs\CTeX_Build.ini"
 !define INI_Sec "CTeX"
 !define INI_Key "BuildNumber"
 
@@ -90,13 +93,13 @@ Function ReadBuildNumber
 	${EndIf}
 FunctionEnd
 
-Function UpdateBuildNumber
-	IntOp $Build_Number $Build_Number + 1
+Function UpdateBuildNumber ;FIXME THIS DOES NOT REALLY WORK. SEEMS IT IS NOT EXECUTED
+	IntOp $Build_Number $Build_Number + 1 
 	WriteINIStr "${INI_File}" "${INI_Sec}" "${INI_Key}" $Build_Number
 FunctionEnd
 
 Function WriteBuildNumber
-	FileOpen $0 "$EXEDIR\CTeX_Build.nsh" "w"
+	FileOpen $0 "$EXEDIR\libs\CTeX_Build.nsh" "w"
 	FileWrite $0 '!define BUILD_NUMBER "$Build_Number"$\r$\n'
 	FileClose $0
 FunctionEnd
