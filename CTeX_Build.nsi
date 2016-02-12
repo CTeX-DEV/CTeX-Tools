@@ -25,9 +25,14 @@ ShowInstDetails show
 !define INI_Sec "CTeX"
 !define INI_Key "BuildNumber"
 
+Var Debug
+
 !macro _Build NAME
-	DetailPrint '${Make} ${NAME}'
-	nsExec::ExecToLog '${Make} ${NAME}'
+	${If} $Debug == "YES"
+		nsExec::ExecToLog '${Make} /DDEBUG ${NAME}'
+	${Else}
+		nsExec::ExecToLog '${Make} ${NAME}'
+	${EndIf}
 	Pop $0
 	${If} $0 != 0
 ;		Abort
@@ -55,6 +60,9 @@ Section "Build Setup" Sec_Basic
 	${Build} '"$EXEDIR\CTeX_Setup.nsi"'
 SectionEnd
 
+Section /o "Build Debug Version" Sec_Debug
+SectionEnd
+
 Section "Increment build number"
 	${IfNot} ${Errors}
 		Call ReadBuildNumber
@@ -79,6 +87,12 @@ Function .onSelChange
 	${OrIf} ${SectionIsSelected} ${Sec_Basic}
 		!insertmacro SelectSection ${Sec_Repair}
 	${EndIf}
+	${If} ${SectionIsSelected} ${Sec_Debug}
+		StrCpy $Debug "YES"
+	${Else}
+		StrCpy $Debug "NO"
+	${EndIf}
+	
 FunctionEnd
 
 Function ReadBuildNumber
