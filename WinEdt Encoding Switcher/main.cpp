@@ -1,4 +1,4 @@
-#include <iostream>
+ï»¿#include <iostream>
 #include <fstream>
 #include <string>
 
@@ -8,53 +8,51 @@
 
 using namespace std;
 
-int _tmain(int argc, _TCHAR **argv) {
+#define ORIG_NAME _T("WinEdt.dnt")
+#define ANSI_NAME _T("ANSI.dnt")
+#define UTF8_NAME _T("UTF8.dnt")
 
-	TCHAR AppDataPath[MAX_PATH];
+int main(int argc, wchar_t **argv) {
+
+	wchar_t AppDataPath[MAX_PATH];
 	SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, NULL, AppDataPath);
-	wcscat_s(AppDataPath, _T("\\WinEdt Team\\WinEdt 9\\"));
+	wcscat_s(AppDataPath, _T("\\WinEdt Team\\WinEdt 10\\"));
 
 
-	cout << "WinEdt Ä¬ÈÏ±àÂëÅäÖÃÇÐ»»¹¤¾ß" << endl;
-	cout << "´Ë¹¤¾ßËæ CTeX Ì××°·¢²¼" << endl;
-	cout << "¾¯¸æ£ºÈç¹ûÊ¹ÓÃ´Ë¹¤¾ß£¬Ôò»á¶ªÊ§ËùÓÐ¶Ô WinEdt µÄ×Ô¶¨ÒåÅäÖÃ" << endl;
-	cout << "Èç¹ûÐèÒª£¬¿ÉÒÔ±¸·ÝÒÔÏÂÄ¿Â¼ÄÚµÄÎÄ¼þ£º";
+	cout << "WinEdt é»˜è®¤ç¼–ç é…ç½®åˆ‡æ¢å·¥å…·" << endl;
+	cout << "æ­¤å·¥å…·éš CTeX å¥—è£…å‘å¸ƒ" << endl;
+	cout << "è­¦å‘Šï¼šå¦‚æžœä½¿ç”¨æ­¤å·¥å…·ï¼Œåˆ™ä¼šä¸¢å¤±æ‰€æœ‰å¯¹ WinEdt çš„è‡ªå®šä¹‰é…ç½®" << endl;
+	cout << "å¦‚æžœéœ€è¦ï¼Œå¯ä»¥å¤‡ä»½ä»¥ä¸‹ç›®å½•å†…çš„æ–‡ä»¶ï¼š";
 	wcout << AppDataPath << endl << endl;
 
-	wstring origName(_T("WinEdt.dnt")),
-		ansiName(_T("ANSI.dnt")),
-		utf8Name(_T("UTF8.dnt"));
-	fstream origFile(origName, ios::in),
-			ansiFile(ansiName, ios::in),
-			utf8File(utf8Name, ios::in);
 	
-	if (!(utf8File && ansiFile)) {
-		cerr << "ÅäÖÃÎÄ¼þ²»ÍêÕû£¬¿ÉÄÜÊÇ¹¤×÷Ä¿Â¼²»ÕýÈ·»òÕßÒÑ¾­Ëð»µ¡£" << endl;
-		cerr << "³ÌÐò½«ÍË³ö£¬½¨ÒéÖØÐÂ°²×° CTeX Ì××°¡£" << endl << endl;
+	if (!(fstream(UTF8_NAME, ios::in) && (fstream(ANSI_NAME, ios::in)))) {
+		cerr << "é…ç½®æ–‡ä»¶ä¸å®Œæ•´ï¼Œå¯èƒ½æ˜¯å·¥ä½œç›®å½•ä¸æ­£ç¡®æˆ–è€…å·²ç»æŸåã€‚" << endl;
+		cerr << "ç¨‹åºå°†é€€å‡ºï¼Œå»ºè®®é‡æ–°å®‰è£… CTeX å¥—è£…ã€‚" << endl << endl;
 		system("pause");
 		return 1;
 	}
 
-	cout << "ÇëÑ¡ÔñÄãÐèÒªµÄÄ¬ÈÏ±àÂë£º£¨Èç¹ûÃ»ÓÐÌØ±ðÐèÒª£¬ÇëÑ¡Ôñ UTF-8 £©" << endl;
+	cout << "è¯·é€‰æ‹©ä½ éœ€è¦çš„é»˜è®¤ç¼–ç ï¼šï¼ˆå¦‚æžœæ²¡æœ‰ç‰¹åˆ«éœ€è¦ï¼Œè¯·é€‰æ‹© UTF-8 ï¼‰" << endl;
 	cout << "1. UTF-8" << endl;
-	cout << "2. ANSI" << endl;
-	cout << "ÇëÊäÈë±àºÅ£º";
+	cout << "2. ANSIï¼ˆåœ¨ç®€ä½“ä¸­æ–‡ç³»ç»Ÿä¸‹ä¸º GBK ï¼‰" << endl;
+	cout << "è¯·è¾“å…¥ç¼–å·ï¼š";
 	string selection;
 	cin >> selection;
 	BOOL success;
 	if (selection == "1") {
-		success = CopyFile((LPCWSTR)utf8Name.c_str(), (LPCWSTR)origName.c_str(), false);
+		success = CopyFile(UTF8_NAME, ORIG_NAME, false);
 	}
 	else if (selection == "2") {
-		success = CopyFile((LPCWSTR)ansiName.c_str(), (LPCWSTR)origName.c_str(), false);
+		success = CopyFile(ANSI_NAME, ORIG_NAME, false);
 	}
 	else {
-		cerr << "ÊäÈë²»ÕýÈ·£¬ÇëÖØÐÂÔËÐÐ±¾³ÌÐò¡£" << endl << endl;
+		cerr << "è¾“å…¥ä¸æ­£ç¡®ï¼Œè¯·é‡æ–°è¿è¡Œæœ¬ç¨‹åºã€‚" << endl << endl;
 		system("pause");
 		return 2;
 	}
 	if (success) {
-		TCHAR FilePath[MAX_PATH];
+		wchar_t FilePath[MAX_PATH];
 		WIN32_FIND_DATA FindFileData;
 		HANDLE hListFile;
 
@@ -64,16 +62,18 @@ int _tmain(int argc, _TCHAR **argv) {
 		if (hListFile != INVALID_HANDLE_VALUE)
 		{
 			do {
-				TCHAR FullPath[MAX_PATH];
+				wchar_t FullPath[MAX_PATH];
 				wcscpy_s(FullPath, AppDataPath);
 				wcscat_s(FullPath, FindFileData.cFileName);
 				DeleteFile(FullPath);
 			} while (FindNextFile(hListFile, &FindFileData));
 		}
+
+		cout << endl << "ç¼–ç åˆ‡æ¢æˆåŠŸï¼Œè¯·æŒ‰ä»»æ„é”®é€€å‡ºã€‚" << endl;
 		system("pause");
 	}
 	else {
-		cerr << "±àÂëÎÄ¼þ¸´ÖÆÊ§°Ü¡£" << endl << endl;
+		cerr << "ç¼–ç æ–‡ä»¶å¤åˆ¶å¤±è´¥ã€‚" << endl << endl;
 		system("pause");
 		return 3;
 	}
